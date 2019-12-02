@@ -10,6 +10,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 
+import com.example.chickenrun.Lobby.Activity_Lobby;
+
 public class MainMenu extends AppCompatActivity {
 
     @Override
@@ -20,9 +22,6 @@ public class MainMenu extends AppCompatActivity {
         final TextView chtotalcnt = (TextView)findViewById(R.id.totalchicken);//치킨갯수
         Button startbtn = (Button)findViewById(R.id.startbtn);//  게임 시작 버튼
         Button buybtn = (Button)findViewById(R.id.buybtn);
-
-
-
 
 
         //게임시작 버튼
@@ -45,6 +44,12 @@ public class MainMenu extends AppCompatActivity {
 
                             .show(); // 팝업창 보여줌
 
+                }
+
+                else
+                {
+                    Intent intent = new Intent(MainMenu.this, Activity_Lobby.class);
+                    startActivity(intent);
                 }
 
             }

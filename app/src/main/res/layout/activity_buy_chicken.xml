@@ -73,6 +73,7 @@
                 android:layout_weight="2"
                 android:text="+"/>
             <EditText
+                android:inputType="number"
                 android:gravity="center"
                 android:id="@+id/ChQty"
                 android:layout_width="0dp"
@@ -80,6 +81,7 @@
                 android:layout_weight="2"
                 android:textAlignment="center"
                 android:text="2"/>
+
             <Button
                 android:id="@+id/minusbtn"
                 android:layout_width="0dp"

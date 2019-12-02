@@ -29,6 +29,7 @@ public class Login extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
+
         loginbtn = findViewById(R.id.login_button);  //로그인 버튼
         textId = findViewById(R.id.login_id);// id 입력
         textPw = findViewById(R.id.login_password);// pw 입력
@@ -57,6 +58,9 @@ public class Login extends AppCompatActivity {
                         //정상 결과
                         Resultm result = response.body();
                         String memname = response.body().getName();
+
+                        Log.e(TAG, "onResponse: result: " + result.getResult() );
+                        Log.e(TAG, "onResponse: memname: " + memname );
 
                         if (response.body() != null)
                         {
@@ -93,6 +97,7 @@ public class Login extends AppCompatActivity {
                     {
                         //네트워크 문제
                         Toast.makeText(Login.this, "네트워크 실패", Toast.LENGTH_SHORT).show();
+                        Log.e(TAG, "onFailure: t: " + t.getMessage() );
                     }
                 });
             }
