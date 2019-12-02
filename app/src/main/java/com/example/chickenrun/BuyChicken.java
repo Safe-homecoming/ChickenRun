@@ -3,6 +3,7 @@ package com.example.chickenrun;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -11,7 +12,18 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.Response;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
+
 import java.text.DecimalFormat;
+import java.util.HashMap;
+import java.util.Map;
+
 import kr.co.bootpay.Bootpay;
 import kr.co.bootpay.enums.Method;
 import kr.co.bootpay.enums.UX;
@@ -26,9 +38,7 @@ import kr.co.bootpay.model.BootUser;
 
 public class BuyChicken extends AppCompatActivity
 {
-
     String TAG = "BuyChicken";
-
 
     int mchichenqty  =1;
     //금액 콤마 찍기
@@ -36,6 +46,8 @@ public class BuyChicken extends AppCompatActivity
 
     private int stuck = 10;
     // Application ID: 5de4c14402f57e0022423501
+
+    boolean isPay = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -85,7 +97,7 @@ public class BuyChicken extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
-                int totalPrice = mchichenqty * 17000;
+                final int totalPrice = mchichenqty * 17000;
                 Log.e(TAG, "onClick: totalPrice: " + totalPrice );
 
                 BootUser bootUser = new BootUser().setPhone("010-1234-1234");
@@ -110,15 +122,21 @@ public class BuyChicken extends AppCompatActivity
                                 if (0 < stuck)
                                 {
                                     Bootpay.confirm(message); // 재고가 있을 경우.
+                                    Log.e(TAG, "onConfirm: confirm" );
                                 } else
                                 {
                                     //
                                     Bootpay.removePaymentWindow(); // 재고가 없어 중간에 결제창을 닫고 싶을 경우
+                                    Log.e(TAG, "onConfirm: removePaymentWindow" );
                                 }
-                                Log.e(TAG, "confirm: confirm");
-                                Log.e("confirm", message);
 
                                 Toast.makeText(BuyChicken.this, "결제 완료", Toast.LENGTH_SHORT).show();
+
+                                // todo: 구매 이력 추가하기
+                                addPaymentHistory("aa", String.valueOf(mchichenqty), String.valueOf(totalPrice));
+
+                                //                                Log.e(TAG, "confirm: confirm");
+//                                Log.e("confirm", message);
                             }
                         })
                         .onDone(new DoneListener()
@@ -170,5 +188,72 @@ public class BuyChicken extends AppCompatActivity
                         .request();
             }
         });
+    }
+
+    void addPaymentHistory(final String userId, final String quantity, final String totalPrice)
+    {
+        Log.e(TAG, "addPaymentHistory(): 구매이력 증가 / 보유 수량 업데이트");
+
+        StringRequest stringRequest
+                = new StringRequest(Request.Method.POST,
+                "http://ec2-13-125-121-5.ap-northeast-2.compute.amazonaws.com/chicken/addChickenHistory.php",
+                new Response.Listener<String>()
+                {
+                    @Override
+                    public void onResponse(String response)
+                    {
+                        Log.e(TAG, "addPaymentHistory onResponse: " + response.trim());
+
+                        if (response.trim().equals("success"))
+                        {
+//                            finish();
+                            isPay = true;
+                        }
+                    }
+                },
+                new Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error)
+                    {
+                        Log.e("VolleyError", "에러: " + error.toString());
+                    }
+                })
+        {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError
+            {
+                Map<String, String> params = new HashMap<>();
+
+                params.put("userId", userId);
+                params.put("quantity", quantity);
+                params.put("totalPrice", totalPrice);
+
+                Log.e(TAG, "getParams: userId: " + userId );
+                Log.e(TAG, "getParams: quantity: " + quantity );
+                Log.e(TAG, "getParams: totalPrice: " + totalPrice );
+
+                return params;
+            }
+        };
+
+        // requestQueue로 로그인 결과값 요청을 시작한다.
+        RequestQueue requestQueue = Volley.newRequestQueue(BuyChicken.this);
+
+        // stringRequest메소드에 기록한 내용들로 requestQueue를 시작한다.
+        requestQueue.add(stringRequest);
+    }
+
+    @Override
+    protected void onResume()
+    {
+        super.onResume();
+
+        // 구매 완료 후 액티비티 종료하기
+        if (isPay)
+        {
+            isPay = false;
+            finish();
+        }
     }
 }

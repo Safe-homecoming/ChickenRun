@@ -27,4 +27,7 @@ dependencies {
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 
     implementation 'com.github.bootpay:client_android_java:3.0.55'
+
+    // 볼리
+    implementation 'com.android.volley:volley:1.1.0'
 }
