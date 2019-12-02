@@ -10,7 +10,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".Lobby.Activity_Lobby"></activity>
+        <activity android:name=".gameRoom.Activity_Waiting_Room"></activity>
+        <activity android:name=".Lobby.Activity_Lobby" />
         <activity android:name=".Login">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -19,7 +20,7 @@
             </intent-filter>
         </activity>
         <activity android:name=".BuyChicken" />
-        <activity android:name=".MainMenu"></activity>
+        <activity android:name=".MainMenu" />
     </application>
 
 </manifest>

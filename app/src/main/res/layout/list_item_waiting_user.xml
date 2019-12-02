@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_weight="1"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content">
+
+    <ImageView
+        android:id="@+id/menu_c_thumb"
+        android:src="@drawable/ic_person_gray"
+        android:layout_width="400dp"
+        android:layout_height="250dp" />
+
+    <TextView
+        android:id="@+id/join_user_name"
+        android:layout_margin="15dp"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:text="Name"
+        android:textSize="18dp" />
+
+    <TextView
+        android:id="@+id/host_mark"
+        android:layout_margin="15dp"
+        android:layout_gravity="right"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:textColor="@color/black"
+        android:text="방장"
+        android:textSize="18dp" />
+
+    <TextView
+        android:id="@+id/button_ready"
+        android:textColor="#000000"
+        android:layout_gravity="center|bottom"
+        android:layout_margin="20dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/item_edit_text_black"
+        android:gravity="center"
+        android:paddingHorizontal="25dp"
+        android:paddingVertical="15dp"
+        android:text="준비 완료" />
+
+<!--    <TextView
+        android:id="@+id/menu_c_price"
+        android:layout_marginHorizontal="15dp"
+        android:layout_marginBottom="15dp"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
+        android:text="Price"
+        android:textColor="@color/black"
+        android:textSize="18dp" />
+
+    <View android:layout_width="match_parent"
+        android:layout_height="0.5dp"
+        android:background="@color/gray2"/>-->
+
+</FrameLayout>
