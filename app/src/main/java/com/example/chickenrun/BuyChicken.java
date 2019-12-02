@@ -112,6 +112,7 @@ public class BuyChicken extends AppCompatActivity
                                     Bootpay.confirm(message); // 재고가 있을 경우.
                                 } else
                                 {
+                                    //
                                     Bootpay.removePaymentWindow(); // 재고가 없어 중간에 결제창을 닫고 싶을 경우
                                 }
                                 Log.e(TAG, "confirm: confirm");
