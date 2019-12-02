@@ -3,11 +3,10 @@ package com.example.chickenrun;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -50,11 +49,19 @@ public class BuyChicken extends AppCompatActivity
 
     boolean isPay = false;
 
+    SharedPreferences sf;
+    String memId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_buy_chicken);
+
+        sf = getSharedPreferences("chmeminfo", MODE_PRIVATE);
+        memId = sf.getString("memId", null);
+
+        Log.e(TAG, "onCreate: memId: " + memId );
 
         Button plusbtn = (Button) findViewById(R.id.plusbtn);
         Button minusbtn = (Button) findViewById(R.id.minusbtn);
@@ -62,7 +69,7 @@ public class BuyChicken extends AppCompatActivity
         final TextView pricetotla = (TextView) findViewById(R.id.totalprice);
         Button chicken_payment = (Button) findViewById(R.id.chicken_payment);
 
-        ChQty.setInputType(EditorInfo.TYPE_NULL); // setCursorVisible(false); 도 가능하다.
+        ChQty.setCursorVisible(false); // setInputType(EditorInfo.TYPE_NULL); // setCursorVisible(false); 도 가능하다.
 
         pricetotla.setText("17,000 원");
         ChQty.setText(String.valueOf(mchichenqty)); // 기본 수량
@@ -136,7 +143,7 @@ public class BuyChicken extends AppCompatActivity
                                 Toast.makeText(BuyChicken.this, "결제 완료", Toast.LENGTH_SHORT).show();
 
                                 // todo: 구매 이력 추가하기
-                                addPaymentHistory("aa", String.valueOf(mchichenqty), String.valueOf(totalPrice));
+                                addPaymentHistory(memId, String.valueOf(mchichenqty), String.valueOf(totalPrice));
 
                                 //                                Log.e(TAG, "confirm: confirm");
 //                                Log.e("confirm", message);

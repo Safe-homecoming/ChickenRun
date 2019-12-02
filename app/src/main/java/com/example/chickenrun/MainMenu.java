@@ -16,6 +16,8 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.chickenrun.Lobby.Activity_Lobby;
+
 public class MainMenu extends AppCompatActivity {
 
 
@@ -67,6 +69,12 @@ public class MainMenu extends AppCompatActivity {
 
                             .show(); // 팝업창 보여줌
 
+                }
+
+                else
+                {
+                    Intent intent = new Intent(MainMenu.this, Activity_Lobby.class);
+                    startActivity(intent);
                 }
 
             }

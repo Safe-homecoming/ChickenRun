@@ -90,12 +90,12 @@ public class Login extends AppCompatActivity {
                     }
 
                     @Override
-                public void onFailure(Call<Resultm> call, Throwable t)
-                {
-                    //네트워크 문제
-                    Toast.makeText(Login.this, "네트워크 실패", Toast.LENGTH_SHORT).show();
-                }
-            });
+                    public void onFailure(Call<Resultm> call, Throwable t)
+                    {
+                        //네트워크 문제
+                        Toast.makeText(Login.this, "네트워크 실패", Toast.LENGTH_SHORT).show();
+                    }
+                });
             }
         });
     }
