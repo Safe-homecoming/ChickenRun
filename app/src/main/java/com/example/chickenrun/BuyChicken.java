@@ -12,7 +12,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import java.text.DecimalFormat;
-
 import kr.co.bootpay.Bootpay;
 import kr.co.bootpay.enums.Method;
 import kr.co.bootpay.enums.UX;
@@ -30,7 +29,8 @@ public class BuyChicken extends AppCompatActivity
 
     String TAG = "BuyChicken";
 
-    int mchichenqty = 1;
+
+    int mchichenqty  =1;
     //금액 콤마 찍기
     DecimalFormat myFormatter = new DecimalFormat("###,###");
 
