@@ -12,6 +12,7 @@ import java.text.DecimalFormat;
 
 public class BuyChicken extends AppCompatActivity {
 
+
     int mchichenqty  =1;
     //금액 콤마 찍기
     DecimalFormat myFormatter = new DecimalFormat("###,###");
@@ -27,6 +28,7 @@ public class BuyChicken extends AppCompatActivity {
 
         pricetotla.setText("17,000 원");
         ChQty.setText(mchichenqty); // 기본 수량
+
 
 
 
