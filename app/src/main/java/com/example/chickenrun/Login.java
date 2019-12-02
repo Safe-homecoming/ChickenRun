@@ -75,7 +75,8 @@ public class Login extends AppCompatActivity {
                                 // String, boolean, int, float, long 값 모두 저장가능하다.
                                 editor.putString("memId", response.body().getMemId());
                                 editor.putString("name", memname);
-                                editor.putInt("qty", response.body().getChicken_quantity());
+                                //editor.putInt("qty", response.body().getChicken_quantity()); 서버로 처리예정
+
                                 // 메모리에 있는 데이터를 저장장치에 저장한다.
                                 editor.commit();
 
@@ -89,12 +90,12 @@ public class Login extends AppCompatActivity {
                     }
 
                     @Override
-                    public void onFailure(Call<Resultm> call, Throwable t)
-                    {
-                        //네트워크 문제
-                        Toast.makeText(Login.this, "네트워크 실패", Toast.LENGTH_SHORT).show();
-                    }
-                });
+                public void onFailure(Call<Resultm> call, Throwable t)
+                {
+                    //네트워크 문제
+                    Toast.makeText(Login.this, "네트워크 실패", Toast.LENGTH_SHORT).show();
+                }
+            });
             }
         });
     }

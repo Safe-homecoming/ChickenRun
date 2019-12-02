@@ -8,6 +8,7 @@ import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
 import retrofit2.http.POST;
+import retrofit2.http.Query;
 
 public interface ApiInterface
 {
@@ -21,6 +22,10 @@ public interface ApiInterface
     @POST("chicken/memberchek.php")
     Call<Resultm> logincheck(@FieldMap HashMap<String, Object> param);
 
+
+    //회원의 치킨 갯수 가져오기
+    @GET("chicken/userchickencnt.php")
+    Call<Resultm> memvbercnt(@Query("id") String id);
 
 }
 
