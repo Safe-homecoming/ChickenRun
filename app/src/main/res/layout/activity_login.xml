@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:focusable="true"
+    android:focusableInTouchMode="true"
+    android:background="@color/white"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="40dp"
+        android:gravity="center"
+        android:text="ChikenRun"
+        android:textStyle="bold"
+        android:layout_marginBottom="50dp"
+        android:textColor="@color/gray"
+        android:textSize="35dp" />
+
+    <!--이메일-->
+    <EditText
+        android:id="@+id/login_id"
+        android:layout_marginBottom="15dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="15dp"
+        android:background="@drawable/item_edit_text_black"
+        android:gravity="center"
+        android:hint="아이디"
+        android:inputType="textEmailAddress"
+        android:padding="8dp"
+        android:textColor="@color/gray"
+        android:textColorHint="@color/gray"
+        android:textSize="20dp" />
+
+
+
+    <!--비밀번호-->
+    <EditText
+        android:id="@+id/login_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="15dp"
+        android:background="@drawable/item_edit_text_black"
+        android:gravity="center"
+        android:hint="비밀번호"
+        android:inputType="textPassword"
+        android:padding="8dp"
+        android:textColor="@color/gray"
+        android:textColorHint="@color/gray"
+        android:textSize="20dp" />
+
+
+    <!--실제 로그인 버튼-->
+    <Button
+        android:id="@+id/login_button"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="15dp"
+        android:layout_marginTop="40dp"
+        android:background="@drawable/item_edit_text_black"
+        android:text="로그인"
+        android:textSize="20dp" />
+
+    <!--가입버튼-->
+    <Button
+        android:id="@+id/go_reg"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginHorizontal="15dp"
+        android:layout_marginTop="40dp"
+        android:background="@drawable/item_edit_text_black"
+        android:text="가입하기"
+        android:textColor="@color/gray"
+        android:textSize="15dp"
+        android:visibility="invisible"/>
+
+
+
+</LinearLayout>
