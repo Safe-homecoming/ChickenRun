@@ -11,7 +11,6 @@ import android.widget.TextView;
 import java.text.DecimalFormat;
 
 public class BuyChicken extends AppCompatActivity {
-    // ㅎㅇㅎㅇㅎㅇㅎㅇㅎㅇ
 
     int mchichenqty  =1;
     //금액 콤마 찍기
