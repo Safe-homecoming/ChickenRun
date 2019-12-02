@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -60,6 +61,8 @@ public class BuyChicken extends AppCompatActivity
         final EditText ChQty = (EditText) findViewById(R.id.ChQty);
         final TextView pricetotla = (TextView) findViewById(R.id.totalprice);
         Button chicken_payment = (Button) findViewById(R.id.chicken_payment);
+
+        ChQty.setInputType(EditorInfo.TYPE_NULL); // setCursorVisible(false); 도 가능하다.
 
         pricetotla.setText("17,000 원");
         ChQty.setText(String.valueOf(mchichenqty)); // 기본 수량

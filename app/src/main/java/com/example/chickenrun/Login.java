@@ -29,7 +29,6 @@ public class Login extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-
         loginbtn = findViewById(R.id.login_button);  //로그인 버튼
         textId = findViewById(R.id.login_id);// id 입력
         textPw = findViewById(R.id.login_password);// pw 입력
@@ -45,8 +44,6 @@ public class Login extends AppCompatActivity {
                 input.put("password", textPw.getText().toString());
                 input.put("title", "this is title");
                 input.put("body", "this is body");
-
-
 
                 // 로그인 버튼 클릭후
                 ApiInterface apiInterface = ApiClient.getApiClient().create(ApiInterface.class);
