@@ -103,7 +103,9 @@
                 android:text="20,000 원"
                 />
         </LinearLayout>
+
         <Button
+            android:id="@+id/chicken_payment"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:background="@drawable/btn_bg_rine"
