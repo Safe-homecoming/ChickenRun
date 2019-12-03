@@ -10,7 +10,8 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".gameRoom.Activity_Waiting_Room"></activity>
+        <activity android:name=".GameStart"></activity>
+        <activity android:name=".gameRoom.Activity_Waiting_Room" />
         <activity android:name=".Lobby.Activity_Lobby" />
         <activity android:name=".Login">
             <intent-filter>
