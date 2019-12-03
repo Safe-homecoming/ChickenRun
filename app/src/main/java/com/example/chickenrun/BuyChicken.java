@@ -49,7 +49,6 @@ public class BuyChicken extends AppCompatActivity
 
     boolean isPay = false;
 
-    SharedPreferences sf;
     String memId;
 
     @Override
@@ -58,7 +57,7 @@ public class BuyChicken extends AppCompatActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_buy_chicken);
 
-        sf = getSharedPreferences("chmeminfo", MODE_PRIVATE);
+        SharedPreferences sf = getSharedPreferences("chmeminfo", MODE_PRIVATE);
         memId = sf.getString("memId", null);
 
         Log.e(TAG, "onCreate: memId: " + memId );

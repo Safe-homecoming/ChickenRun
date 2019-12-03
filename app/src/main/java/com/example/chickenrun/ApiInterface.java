@@ -34,7 +34,7 @@ public interface ApiInterface
 
     // 로비에서 방 목록 불러오기
     @FormUrlEncoded
-    @POST("chicken/.php")
+    @POST("chicken/getRoomList.php")
     Call<List<item_lobby_list>> getRoomList(@Field("getId") String id);
 
 

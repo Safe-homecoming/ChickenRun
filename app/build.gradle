@@ -40,4 +40,7 @@ dependencies {
 
     // 피카소 이미지 라이브러리
     implementation 'com.squareup.picasso:picasso:2.71828'
+
+    // 소켓 io
+    implementation 'com.github.nkzawa:socket.io-client:0.6.0'
 }

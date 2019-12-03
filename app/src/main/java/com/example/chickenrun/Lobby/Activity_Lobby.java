@@ -9,8 +9,10 @@ import androidx.swiperefreshlayout.widget.SwipeRefreshLayout;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -19,14 +21,23 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.android.volley.AuthFailureError;
+import com.android.volley.Request;
+import com.android.volley.RequestQueue;
+import com.android.volley.VolleyError;
+import com.android.volley.toolbox.StringRequest;
+import com.android.volley.toolbox.Volley;
 import com.example.chickenrun.ApiClient;
 import com.example.chickenrun.ApiInterface;
+import com.example.chickenrun.BuyChicken;
 import com.example.chickenrun.R;
 import com.example.chickenrun.gameRoom.Activity_Waiting_Room;
 import com.squareup.picasso.NetworkPolicy;
 import com.squareup.picasso.Picasso;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -45,6 +56,13 @@ public class Activity_Lobby extends AppCompatActivity
     private Context mContext;
     TextView button_create_room;
 
+    public static String GET_ROOM_INDEX, GET_MY_JOIN_INDEX;
+
+    String memId;
+
+    // 방 삭제 알림 수신 대기 (핸들러)
+    public static Handler HANDLER_DELETE;
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -52,6 +70,9 @@ public class Activity_Lobby extends AppCompatActivity
         setContentView(R.layout.activity_lobby);
 
         mContext = Activity_Lobby.this;
+
+        SharedPreferences sf = getSharedPreferences("chmeminfo", MODE_PRIVATE);
+        memId = sf.getString("name", null);
 
         // viewFind
         button_create_room = findViewById(R.id.button_create_room);
@@ -86,7 +107,7 @@ public class Activity_Lobby extends AppCompatActivity
         // todo: 방 목록 불러오기
         getRoomList();
 
-        // todo: 방 생성 버튼 클릭
+        // todo: 방 생성 다이얼로그 실행
         button_create_room.setOnClickListener(new View.OnClickListener()
         {
             @Override
@@ -103,6 +124,7 @@ public class Activity_Lobby extends AppCompatActivity
 
                 final AlertDialog dialog = builder.create();
 
+                // todo: 방 생성 시작하기
                 dialog_button_room_create.setOnClickListener(new View.OnClickListener()
                 {
                     @Override
@@ -110,22 +132,99 @@ public class Activity_Lobby extends AppCompatActivity
                     {
                         // 방 제목 입력받기
                         String roomTitle = dialog_edit_text_room_name.getText().toString();
-                        Log.e(TAG, "onClick: roomTitle: " + roomTitle );
+                        Log.e(TAG, "onClick: roomTitle: " + roomTitle);
 
-                        // 게임 대기방으로 이동
-                        Intent intent = new Intent(mContext, Activity_Waiting_Room.class);
-                        startActivity(intent);
+                        // todo: 방 생성 (mysql)
+                        createRoom(roomTitle);
                     }
                 });
                 dialog.show();
             }
         });
+
+        // 방 삭제 알림 수신 대기 (핸들러)
+        HANDLER_DELETE = new Handler()
+        {
+            @Override
+            public void handleMessage(Message msg)
+            {
+                if (msg.what == 1111)
+                {
+                    String receive = msg.obj.toString();
+                    Log.e(TAG, "handleMessage: receive: " + receive );
+                    if (receive.equals("refreshList_deleteRoom"))
+                    {
+                        // todo: 방 삭제되면 목록 불러오기
+                        getRoomList();
+                    }
+                }
+            }
+        };
+    }
+
+    String createRoomData[];
+
+    // todo: 방 생성 (mysql)
+    private void createRoom(final String roomName)
+    {
+        Log.e(TAG, "createRoom: 방 생성 시작");
+
+        StringRequest stringRequest
+                = new StringRequest(Request.Method.POST,
+                "http://ec2-13-125-121-5.ap-northeast-2.compute.amazonaws.com/chicken/addRoom.php",
+                new com.android.volley.Response.Listener<String>()
+                {
+                    @Override
+                    public void onResponse(String response)
+                    {
+                        Log.e(TAG, "addPaymentHistory onResponse: " + response.trim());
+
+                        createRoomData = response.trim().split(", ");
+
+                        if (createRoomData[0].equals("success"))
+                        {
+                            Log.e(TAG, "createRoom: 방 생성 완료");
+
+                            // 방장에게 방 인덱스 알려주기 (방 퇴장 처리 할 때 필요)
+                            GET_ROOM_INDEX = createRoomData[0];
+
+                            // 게임 대기방으로 이동
+                            Intent intent = new Intent(mContext, Activity_Waiting_Room.class);
+                            startActivity(intent);
+                        }
+                    }
+                },
+                new com.android.volley.Response.ErrorListener()
+                {
+                    @Override
+                    public void onErrorResponse(VolleyError error)
+                    {
+                        Log.e("VolleyError", "에러: " + error.toString());
+                    }
+                })
+        {
+            @Override
+            protected Map<String, String> getParams() throws AuthFailureError
+            {
+                Map<String, String> params = new HashMap<>();
+
+                params.put("roomName", roomName);
+
+                return params;
+            }
+        };
+
+        // requestQueue로 로그인 결과값 요청을 시작한다.
+        RequestQueue requestQueue = Volley.newRequestQueue(mContext);
+
+        // stringRequest메소드에 기록한 내용들로 requestQueue를 시작한다.
+        requestQueue.add(stringRequest);
     }
 
     // todo: 방 목록 불러오기
     void getRoomList()
     {
-        Log.e(TAG, "getRoomList: 방 목록 불러오기" );
+        Log.e(TAG, "getRoomList: 방 목록 불러오기");
 
         //building retrofit object
         Retrofit retrofit = new Retrofit.Builder()
@@ -147,19 +246,19 @@ public class Activity_Lobby extends AppCompatActivity
 
                 itemLobbyList = response.body();
 
-/*                for (int i = 0; i < itemLobbyList.size(); i++)
+                for (int i = 0; i < itemLobbyList.size(); i++)
                 {
-                    Log.e(TAG, "onResponse: itemLobbyList: " + itemLobbyList.get(i));
+                    Log.e(TAG, "onResponse: itemLobbyList: " + itemLobbyList.get(i).getRoomName());
                 }
 
                 adapterRoomList = new Adapter_Room_List(mContext, itemLobbyList);
-                lobby_room_list.setAdapter(adapterRoomList);*/
+                lobby_room_list.setAdapter(adapterRoomList);
             }
 
             @Override
             public void onFailure(Call<List<item_lobby_list>> call, Throwable t)
             {
-                Log.e(TAG, "onFailure: t: " + t.getMessage() );
+                Log.e(TAG, "onFailure: t: " + t.getMessage());
             }
         });
     }
@@ -184,11 +283,13 @@ public class Activity_Lobby extends AppCompatActivity
         }
 
         @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position)
+        public void onBindViewHolder(@NonNull ViewHolder holder, final int position)
         {
-            holder.room_title.setText("");
+            // 방 제목
+            holder.room_title.setText(itemLobbyList.get(position).getRoomName());
 
-            holder.join_user_count.setText("실제 인원 수" + " / 4");
+            // 방 인원 수
+            holder.join_user_count.setText(itemLobbyList.get(position).roomCount + " / 4");
 
             // 참가버튼 클릭
             holder.button_join.setOnClickListener(new View.OnClickListener()
@@ -196,7 +297,12 @@ public class Activity_Lobby extends AppCompatActivity
                 @Override
                 public void onClick(View v)
                 {
+                    // 방 번호 담아두기 (퇴장 할 때 필요)
+                    GET_ROOM_INDEX = itemLobbyList.get(position).roomIndex;
+                    Log.e(TAG, "onClick: " + memId + "님이 " + GET_ROOM_INDEX + "번 방에 입장합니다.");
 
+                    // todo: 방 입장하기 (mysql)
+                    joinRoom(GET_ROOM_INDEX, memId);
                 }
             });
         }
@@ -223,6 +329,67 @@ public class Activity_Lobby extends AppCompatActivity
                 join_user_count = itemView.findViewById(R.id.join_user_count);
                 button_join = itemView.findViewById(R.id.button_join);
             }
+        }
+
+        String joinResult[];
+
+        // todo: 방 입장하기 (mysql)
+        public void joinRoom(final String roomIndex, final String userName)
+        {
+            Log.e(TAG, "joinRoom: 방 입장 처리하기");
+
+            StringRequest stringRequest
+                    = new StringRequest(Request.Method.POST,
+                    "http://ec2-13-125-121-5.ap-northeast-2.compute.amazonaws.com/chicken/joinRoom.php",
+                    new com.android.volley.Response.Listener<String>()
+                    {
+                        @Override
+                        public void onResponse(String response)
+                        {
+                            Log.e(TAG, "addPaymentHistory onResponse: " + response.trim());
+
+                            joinResult = response.trim().split(", ");
+
+                            // 방 입장 처리 완료 메시지
+                            if (joinResult[0].equals("success_join_room"))
+                            {
+                                Log.e(TAG, "createRoom: 방 입장 처리 완료");
+
+                                // 내 방 참가정보 가지고 있기 (방에서 퇴장 하면서 내 참가정보 삭제할 때 필요)
+                                GET_MY_JOIN_INDEX = joinResult[1];
+
+                                Intent intent = new Intent(mContext, Activity_Waiting_Room.class);
+                                startActivity(intent);
+                            }
+                        }
+                    },
+                    new com.android.volley.Response.ErrorListener()
+                    {
+                        @Override
+                        public void onErrorResponse(VolleyError error)
+                        {
+                            Log.e("VolleyError", "에러: " + error.toString());
+                        }
+                    })
+            {
+                @Override
+                protected Map<String, String> getParams() throws AuthFailureError
+                {
+                    Map<String, String> params = new HashMap<>();
+
+                    params.put("roomIndex", roomIndex);
+                    params.put("userName", userName);
+
+                    return params;
+                }
+            };
+
+            // requestQueue로 로그인 결과값 요청을 시작한다.
+            RequestQueue requestQueue = Volley.newRequestQueue(mContext);
+
+            // stringRequest메소드에 기록한 내용들로 requestQueue를 시작한다.
+            requestQueue.add(stringRequest);
+
         }
     }
 }
