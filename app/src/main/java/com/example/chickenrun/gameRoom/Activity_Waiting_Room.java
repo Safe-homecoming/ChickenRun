@@ -47,6 +47,7 @@ import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.example.chickenrun.Lobby.Activity_Lobby.GET_MY_JOIN_INDEX;
 import static com.example.chickenrun.Lobby.Activity_Lobby.GET_ROOM_INDEX;
+import static com.example.chickenrun.Lobby.Activity_Lobby.GET_ROOM_NAME;
 import static com.example.chickenrun.Lobby.Activity_Lobby.HANDLER_DELETE;
 
 public class Activity_Waiting_Room extends AppCompatActivity
@@ -63,12 +64,14 @@ public class Activity_Waiting_Room extends AppCompatActivity
     TextView button_waiting_ready;
 
     // 소켓 연결 설정
-    private Socket mSocket;
+    Socket mSocket;
     {
         try
         {
-            Log.e(TAG, "instance initializer: 소켓 연결 시작" );
-            mSocket = IO.socket("http://chat.socket.io");
+            Log.e(TAG, "instance initializer: 소켓 연결 시작");
+//            mSocket = IO.socket("http://chat.socket.io");
+            mSocket = IO.socket("http://ec2-13-125-121-5.ap-northeast-2.compute.amazonaws.com/test.html");
+
             Log.e(TAG, "instance initializer: mSocket: " + mSocket);
         }
 
@@ -77,6 +80,8 @@ public class Activity_Waiting_Room extends AppCompatActivity
             Log.e(TAG, "instance initializer: URISyntaxException: " + e.getMessage());
         }
     }
+
+    boolean isReady;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -90,19 +95,38 @@ public class Activity_Waiting_Room extends AppCompatActivity
         mSocket.on("new message", onNewMessage);
         mSocket.connect();
 
+        TextView room_name = findViewById(R.id.room_name);
+        room_name.setText(GET_ROOM_NAME);
+
         // 리사이클러뷰 세팅
         Participant_list = findViewById(R.id.waiting_room_participant);
         Participant_list.setHasFixedSize(true);
         Participant_list.setLayoutManager(new LinearLayoutManager(mContext));
 
-        // 준비 버튼 클릭
+        // 준비 버튼 클릭 (소켓 통신)
         button_waiting_ready = findViewById(R.id.button_waiting_ready);
         button_waiting_ready.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
+                if (isReady)
+                {
+                    // 준비 상태 활성화
+                    String message = "Ready|off";
+                    attemptSend(message);
 
+                    isReady = false;
+                }
+
+                else
+                {
+                    // 준비 상태 비활성화
+                    String message = "Ready|on";
+                    attemptSend(message);
+
+                    isReady = true;
+                }
             }
         });
 
@@ -111,33 +135,48 @@ public class Activity_Waiting_Room extends AppCompatActivity
     }
 
     // 메시지 전송
-    private void attemptReadyOn()
+    private void attemptSend(String message)
     {
-        String message = "Ready|on";
+        Log.e(TAG, "attemptReadyOn: 클릭함" );
         if (TextUtils.isEmpty(message))
         {
+            Log.e(TAG, "attemptSend: message.Empty?" );
             return;
         }
 
         mSocket.emit("new message", message);
+
+        Log.e(TAG, "attemptSend: 전송한 메시지: " + message );
     }
 
-    private Emitter.Listener onNewMessage = new Emitter.Listener() {
+    // 메시지 수신
+    private Emitter.Listener onNewMessage = new Emitter.Listener()
+    {
         @Override
-        public void call(final Object... args) {
-            runOnUiThread(new Runnable() {
+        public void call(final Object... args)
+        {
+            Log.e(TAG, "call: " );
+            runOnUiThread(new Runnable()
+            {
                 @Override
-                public void run() {
+                public void run()
+                {
                     JSONObject data = (JSONObject) args[0];
-                    Log.e(TAG, "run: data: " + data );
+                    Log.e(TAG, "run: data: " + data);
                     String username;
                     String message;
-                    try {
+                    try
+                    {
                         username = data.getString("username");
                         message = data.getString("message");
-                        Log.e(TAG, "run: username" + username );
 
-                    } catch (JSONException e) {
+                        Log.e(TAG, "run: 메시지 수신 받음" );
+                        Log.e(TAG, "run: username: " + username);
+                        Log.e(TAG, "run: message: " + message);
+
+                    } catch (JSONException e)
+                    {
+                        Log.e(TAG, "run: e: " + e.toString() );
                         return;
                     }
 
@@ -151,7 +190,8 @@ public class Activity_Waiting_Room extends AppCompatActivity
 
     // 소켓 연결 해제
     @Override
-    public void onDestroy() {
+    public void onDestroy()
+    {
         super.onDestroy();
 
         mSocket.disconnect();
@@ -164,7 +204,7 @@ public class Activity_Waiting_Room extends AppCompatActivity
     // todo: 방 퇴장하기 (mysql)
     public void disconnectRoom(final String roomIndex, final String myJoinIndex)
     {
-        Log.e(TAG, "disconnectRoom: 방 퇴장 처리하기" );
+        Log.e(TAG, "disconnectRoom: 방 퇴장 처리하기");
 
         StringRequest stringRequest
                 = new StringRequest(Request.Method.POST,
@@ -179,7 +219,7 @@ public class Activity_Waiting_Room extends AppCompatActivity
                         // 방 퇴장 처리 완료 메시지
                         if (response.trim().equals("success_room_delete"))
                         {
-                            Log.e(TAG, "createRoom: 방 퇴장 처리 완료" );
+                            Log.e(TAG, "createRoom: 방 퇴장 처리 완료");
 
                             // 방 삭제되면 핸들러로 Activity_Lobby로 삭제 알림 보내주기 (방 목록 새로고침)
                             Message hdmg = HANDLER_DELETE.obtainMessage();
@@ -322,6 +362,5 @@ public class Activity_Waiting_Room extends AppCompatActivity
                 button_ready = itemView.findViewById(R.id.button_ready);
             }
         }
-
     }
 }

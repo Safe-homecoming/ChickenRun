@@ -56,9 +56,9 @@ public class Activity_Lobby extends AppCompatActivity
     private Context mContext;
     TextView button_create_room;
 
-    public static String GET_ROOM_INDEX, GET_MY_JOIN_INDEX;
+    public static String GET_ROOM_INDEX, GET_MY_JOIN_INDEX, GET_ROOM_NAME;
 
-    String memId;
+    public String memId;
 
     // 방 삭제 알림 수신 대기 (핸들러)
     public static Handler HANDLER_DELETE;
@@ -299,6 +299,7 @@ public class Activity_Lobby extends AppCompatActivity
                 {
                     // 방 번호 담아두기 (퇴장 할 때 필요)
                     GET_ROOM_INDEX = itemLobbyList.get(position).roomIndex;
+                    GET_ROOM_NAME = itemLobbyList.get(position).getRoomName();
                     Log.e(TAG, "onClick: " + memId + "님이 " + GET_ROOM_INDEX + "번 방에 입장합니다.");
 
                     // todo: 방 입장하기 (mysql)
