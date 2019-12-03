@@ -15,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -46,6 +47,7 @@ import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
 import static com.example.chickenrun.Lobby.Activity_Lobby.GET_MY_JOIN_INDEX;
+import static com.example.chickenrun.Lobby.Activity_Lobby.GET_MY_NAME;
 import static com.example.chickenrun.Lobby.Activity_Lobby.GET_ROOM_INDEX;
 import static com.example.chickenrun.Lobby.Activity_Lobby.GET_ROOM_NAME;
 import static com.example.chickenrun.Lobby.Activity_Lobby.HANDLER_DELETE;
@@ -64,22 +66,8 @@ public class Activity_Waiting_Room extends AppCompatActivity
     TextView button_waiting_ready;
 
     // 소켓 연결 설정
-    Socket mSocket;
-    {
-        try
-        {
-            Log.e(TAG, "instance initializer: 소켓 연결 시작");
-//            mSocket = IO.socket("http://chat.socket.io");
-            mSocket = IO.socket("http://ec2-13-125-121-5.ap-northeast-2.compute.amazonaws.com/test.html");
+    Socket socket;
 
-            Log.e(TAG, "instance initializer: mSocket: " + mSocket);
-        }
-
-        catch (URISyntaxException e)
-        {
-            Log.e(TAG, "instance initializer: URISyntaxException: " + e.getMessage());
-        }
-    }
 
     boolean isReady;
 
@@ -91,9 +79,45 @@ public class Activity_Waiting_Room extends AppCompatActivity
 
         mContext = Activity_Waiting_Room.this;
 
+
+        try
+        {
+            socket = IO.socket("http://ec2-13-125-121-5.ap-northeast-2.compute.amazonaws.com:3000");
+            Log.e(TAG, "onCreate: socket: " + socket);
+        }
+
+        catch (Exception e)
+        {
+            Log.e(TAG, "onCreate: e: " + e.toString());
+            e.printStackTrace();
+        }
+
         // 소켓 연결
-        mSocket.on("new message", onNewMessage);
-        mSocket.connect();
+        socket.on(Socket.EVENT_CONNECT, new Emitter.Listener()
+        {
+            @Override
+            public void call(Object... args)
+            {
+                socket.emit("message_from_client", "입장: " + GET_MY_NAME);
+            }
+        }).on("message_from_server", new Emitter.Listener()
+        {
+            @Override
+            public void call(final Object... args)
+            {
+                runOnUiThread(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        Log.e(TAG, "run: args[0]: " + args[0].toString());
+
+                        Toast.makeText(mContext, "args[0].toString()", Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        });
+        socket.connect();
 
         TextView room_name = findViewById(R.id.room_name);
         room_name.setText(GET_ROOM_NAME);
@@ -114,18 +138,22 @@ public class Activity_Waiting_Room extends AppCompatActivity
                 {
                     // 준비 상태 활성화
                     String message = "Ready|off";
-                    attemptSend(message);
 
+                    socket.emit("message_from_client", message);
+//                    attemptSend(message);
                     isReady = false;
-                }
 
-                else
+                    Log.e(TAG, "onClick: message: " + message);
+                } else
                 {
                     // 준비 상태 비활성화
                     String message = "Ready|on";
+
                     attemptSend(message);
 
                     isReady = true;
+
+                    Log.e(TAG, "onClick: message: " + message);
                 }
             }
         });
@@ -137,65 +165,25 @@ public class Activity_Waiting_Room extends AppCompatActivity
     // 메시지 전송
     private void attemptSend(String message)
     {
-        Log.e(TAG, "attemptReadyOn: 클릭함" );
+        Log.e(TAG, "attemptReadyOn: 클릭함");
         if (TextUtils.isEmpty(message))
         {
-            Log.e(TAG, "attemptSend: message.Empty?" );
+            Log.e(TAG, "attemptSend: message.Empty?");
             return;
         }
 
-        mSocket.emit("new message", message);
-
-        Log.e(TAG, "attemptSend: 전송한 메시지: " + message );
+        socket.emit("message_from_client", message);
+        Log.e(TAG, "attemptSend: 전송한 메시지: " + message);
     }
 
-    // 메시지 수신
-    private Emitter.Listener onNewMessage = new Emitter.Listener()
-    {
-        @Override
-        public void call(final Object... args)
-        {
-            Log.e(TAG, "call: " );
-            runOnUiThread(new Runnable()
-            {
-                @Override
-                public void run()
-                {
-                    JSONObject data = (JSONObject) args[0];
-                    Log.e(TAG, "run: data: " + data);
-                    String username;
-                    String message;
-                    try
-                    {
-                        username = data.getString("username");
-                        message = data.getString("message");
-
-                        Log.e(TAG, "run: 메시지 수신 받음" );
-                        Log.e(TAG, "run: username: " + username);
-                        Log.e(TAG, "run: message: " + message);
-
-                    } catch (JSONException e)
-                    {
-                        Log.e(TAG, "run: e: " + e.toString() );
-                        return;
-                    }
-
-                    // 메시지 수신받기
-                    // add the message to view
-//                    addMessage(username, message);
-                }
-            });
-        }
-    };
-
-    // 소켓 연결 해제
     @Override
     public void onDestroy()
     {
         super.onDestroy();
 
-        mSocket.disconnect();
-        mSocket.off("new message", onNewMessage);
+        // 소켓 연결 해제
+        socket.disconnect();
+        //        socket.off("new message", onNewMessage);
 
         // todo: 방 퇴장하기 (mysql)
         disconnectRoom(GET_ROOM_INDEX, GET_MY_JOIN_INDEX);

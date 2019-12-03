@@ -3,8 +3,27 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:orientation="vertical"
     tools:context=".GameStart">
+
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.airbnb.lottie.LottieAnimationView
+            android:layout_marginBottom="20dp"
+            android:layout_gravity="center"
+            android:id="@+id/Lottie_Intro"
+            android:layout_width="match_parent"
+            android:layout_height="500dp"
+            app:lottie_autoPlay="true"
+            app:lottie_fileName="funky-chicken.json"
+            app:lottie_loop="true" />
+
+    </FrameLayout>
+
 
     <EditText
         android:layout_width="match_parent"

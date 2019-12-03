@@ -12,15 +12,18 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".GameStart"></activity>
-        <activity android:name=".gameRoom.Activity_Waiting_Room" />
-        <activity android:name=".Lobby.Activity_Lobby" />
-        <activity android:name=".Login">
+        <activity android:name=".GameStart">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+        </activity>
+        <activity android:name=".gameRoom.Activity_Waiting_Room" />
+        <activity android:name=".Lobby.Activity_Lobby" />
+        <activity android:name=".Login">
+
         </activity>
         <activity android:name=".BuyChicken" />
         <activity android:name=".MainMenu" />
