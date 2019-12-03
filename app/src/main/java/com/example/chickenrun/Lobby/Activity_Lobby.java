@@ -56,7 +56,7 @@ public class Activity_Lobby extends AppCompatActivity
     private Context mContext;
     TextView button_create_room;
 
-    public static String GET_ROOM_INDEX, GET_MY_JOIN_INDEX, GET_ROOM_NAME;
+    public static String GET_ROOM_INDEX, GET_MY_JOIN_INDEX, GET_ROOM_NAME, GET_MY_NAME;
 
     public String memId;
 
@@ -73,6 +73,7 @@ public class Activity_Lobby extends AppCompatActivity
 
         SharedPreferences sf = getSharedPreferences("chmeminfo", MODE_PRIVATE);
         memId = sf.getString("name", null);
+        GET_MY_NAME = sf.getString("name", null);
 
         // viewFind
         button_create_room = findViewById(R.id.button_create_room);
