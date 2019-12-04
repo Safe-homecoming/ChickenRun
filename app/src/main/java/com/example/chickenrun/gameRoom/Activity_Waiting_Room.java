@@ -4,12 +4,10 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -21,7 +19,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.android.volley.AuthFailureError;
 import com.android.volley.Request;
@@ -53,6 +50,7 @@ import static com.example.chickenrun.Lobby.Activity_Lobby.GET_MY_NAME;
 import static com.example.chickenrun.Lobby.Activity_Lobby.GET_ROOM_INDEX;
 import static com.example.chickenrun.Lobby.Activity_Lobby.GET_ROOM_NAME;
 import static com.example.chickenrun.Lobby.Activity_Lobby.HANDLER_DELETE;
+import static com.example.chickenrun.gameRoom.adapterWaitingRoom.itemParticipant;
 
 public class Activity_Waiting_Room extends AppCompatActivity
 {
@@ -61,9 +59,11 @@ public class Activity_Waiting_Room extends AppCompatActivity
     private Context mContext;
     private RecyclerView Participant_list;
     private int Participant_list_size;
-    private Adapter_Participant adapterParticipantList;
+    //    private Adapter_Participant adapterParticipantList;
+    private adapterWaitingRoom adapterWaitingRoom;
 
-    private List<item_participant_user> itemParticipant;
+    //    private List<item_participant_user> itemParticipant;
+    private List<item_participant_user> itemParticipant = new ArrayList<>();
     private item_participant_user item_participant_user;
 
     private TextView button_waiting_ready;
@@ -74,7 +74,8 @@ public class Activity_Waiting_Room extends AppCompatActivity
     boolean isReady;
 
     // 레디 버튼 클릭 신호 수신
-    public static Handler readyClick;
+    public static Handler HANDLER_READY_CLICK;
+    private Handler joinUser;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -84,14 +85,19 @@ public class Activity_Waiting_Room extends AppCompatActivity
 
         mContext = Activity_Waiting_Room.this;
 
-        itemParticipant = new ArrayList<>();
+//        itemParticipant = new ArrayList<>();
+
+        // 준비 버튼 클릭 (소켓 통신)
+        button_waiting_ready = findViewById(R.id.button_waiting_ready);
 
         // todo: nodeJS 서버 접속 (socket.io)
         try
         {
             socket = IO.socket("http://ec2-13-125-121-5.ap-northeast-2.compute.amazonaws.com:3000");
             Log.e(TAG, "onCreate: socket: " + socket);
-        } catch (Exception e)
+        }
+
+        catch (Exception e)
         {
             Log.e(TAG, "onCreate: e: " + e.toString());
             e.printStackTrace();
@@ -106,14 +112,14 @@ public class Activity_Waiting_Room extends AppCompatActivity
 
                 if (GET_IS_HOST)
                 {
-                    Log.e(TAG, "call: 방장으로 접속함, 입장 메시지 전송 안 함" );
+                    Log.e(TAG, "call: 방장으로 접속함, 입장 메시지 전송 안 함");
                 }
 
                 // todo: 입장 알림 메시지 전송
                 else
                 {
-                    Log.e(TAG, "call: 참가자로 접속함, 입장 메시지 전송" );
-                    attemptSend(GET_MY_NAME, GET_ROOM_INDEX, "comeUser", GET_MY_NAME);                    
+                    Log.e(TAG, "call: 참가자로 접속함, 입장 메시지 전송");
+                    attemptSend(GET_MY_NAME, GET_ROOM_INDEX, "comeUser", GET_MY_NAME);
                 }
 
 
@@ -132,8 +138,6 @@ public class Activity_Waiting_Room extends AppCompatActivity
 
                         // todo: 수신받은 메시지 가공해서 사용하기
                         getSocketMessage(args[0].toString());
-
-                        // Toast.makeText(mContext, args[0].toString(), Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -160,68 +164,71 @@ public class Activity_Waiting_Room extends AppCompatActivity
         Participant_list.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
         Participant_list.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.HORIZONTAL));
 
-        adapterParticipantList = new Adapter_Participant(mContext, itemParticipant);
-        Participant_list.setAdapter(adapterParticipantList);
+        adapterWaitingRoom = new adapterWaitingRoom(mContext, itemParticipant);
+        Participant_list.setAdapter(adapterWaitingRoom);
+
 
         // todo: 방 입장, 퇴장 처리
         // 방 생성자라면 방장 활성화
 //        userStateManagement("Come", GET_IS_HOST, GET_MY_NAME);
-        Log.e(TAG, "onCreate: itemParticipant.size(): " + itemParticipant.size() );
+        Log.e(TAG, "onCreate: itemParticipant.size(): " + itemParticipant.size());
         for (int i = 0; i < itemParticipant.size(); i++)
         {
-            Log.e(TAG, "onCreate: itemParticipant: Name: " + itemParticipant.get(i).getUserName() );
+            Log.e(TAG, "onCreate: itemParticipant: Name: " + itemParticipant.get(i).getUserName());
         }
 
-        // 준비 버튼 클릭 (소켓 통신)
-        button_waiting_ready = findViewById(R.id.button_waiting_ready);
+        // todo: 레디 버튼 제어
+        ReadyTask();
+
+        // todo: 참가중인 유저 불러오기
+        getParticipantList();
+    }
+
+    // todo: 레디 버튼 제어
+    private void ReadyTask()
+    {
         button_waiting_ready.setOnClickListener(new View.OnClickListener()
         {
             @Override
             public void onClick(View v)
             {
-                Log.e(TAG, "onCreate: button_waiting_ready: 클릭함" );
-//                Log.e(TAG, "onCreate: itemParticipant.size(): " + itemParticipant.size() );
-                Log.e(TAG, "onCreate: adapterParticipantList.getItemCount(): " + adapterParticipantList.getItemCount() );
+                Log.e(TAG, "onCreate: button_waiting_ready: 클릭함");
 
-                for (int i = 0; i < adapterParticipantList.getItemCount(); i++)
+                if (isReady)
                 {
-                    if (itemParticipant.get(i).getUserName().equals(GET_MY_NAME))
-                    {
-                        if (isReady)
-                        {
-                            // 리사이클러뷰로 레디 알림 보내주기
-                            Message hdmg = readyClick.obtainMessage();
-                            Log.e(TAG, "onClick: hdmg = msgHandler.obtainMessage(): " + hdmg);
-                            hdmg.what = 1112;
-                            hdmg.obj = "ready_off_recycler_view, " + GET_MY_NAME;
-                            readyClick.sendMessage(hdmg);
+                    // 리사이클러뷰로 ready 알림 보내주기
+                    Message hdmg = HANDLER_READY_CLICK.obtainMessage();
+                    Log.e(TAG, "onClick: hdmg = msgHandler.obtainMessage(): " + hdmg);
+                    hdmg.what = 1112;
+                    hdmg.obj = "ready_off_recycler_view, " + GET_MY_NAME;
+                    Log.e(TAG, "onClick: myName: ");
+                    HANDLER_READY_CLICK.sendMessage(hdmg);
 
-                            // 준비 상태 활성화
-                            attemptSend(GET_MY_NAME, GET_ROOM_INDEX, "Ready", "Off");
-                            isReady = false;
-                        }
+                    button_waiting_ready.setText("준 비");
 
-                        //
-                        else
-                        {
-                            Message hdmg = readyClick.obtainMessage();
-                            Log.e(TAG, "onClick: hdmg = msgHandler.obtainMessage(): " + hdmg);
-                            hdmg.what = 1112;
-                            hdmg.obj = "ready_on_recycler_view";
-                            readyClick.sendMessage(hdmg);
+                    // 준비 상태 활성화
+                    attemptSend(GET_MY_NAME, GET_ROOM_INDEX, "Ready", "Off");
+                    isReady = false;
+                }
 
-                            // 준비 상태 비활성화
-                            attemptSend(GET_MY_NAME, GET_ROOM_INDEX, "Ready", "On");
+                //
+                else
+                {
+                    Message hdmg = HANDLER_READY_CLICK.obtainMessage();
+                    Log.e(TAG, "onClick: hdmg = msgHandler.obtainMessage(): " + hdmg);
+                    hdmg.what = 1112;
+                    hdmg.obj = "ready_on_recycler_view, " + GET_MY_NAME;
+                    HANDLER_READY_CLICK.sendMessage(hdmg);
 
-                            isReady = true;
-                        }
-                    }
+                    button_waiting_ready.setText("준 비 취 소");
+
+                    // 준비 상태 비활성화
+                    attemptSend(GET_MY_NAME, GET_ROOM_INDEX, "Ready", "On");
+
+                    isReady = true;
                 }
             }
         });
-
-        // todo: 참가중인 유저 불러오기
-        getParticipantList();
     }
 
     String ioMessage[];
@@ -270,24 +277,25 @@ public class Activity_Waiting_Room extends AppCompatActivity
             // 방장에게 유저 목록 정리 맡기기 & 방장인 회원 추리기
             if (GET_IS_HOST)
             {
-                for (int i = 0; i < itemParticipant.size(); i++)
+                Log.e(TAG, "userStateManagement: 방장 권한으로 유저를 추가함 ");
+
+                // 생성자에 데이터 세팅하기
+                item_participant_user = new item_participant_user(userName, areYouHost, false);
+
+                if (itemParticipant == null)
                 {
-                    // isHost == true: 방장
-                    if (itemParticipant.get(i).isHost)
-                    {
-                        Log.e(TAG, "userStateManagement: 방장 권한으로 유저 추가함 " + itemParticipant.get(i).isHost );
-
-                        // 생성자에 데이터 세팅하기
-                        item_participant_user = new item_participant_user(userName, areYouHost, false);
-                        itemParticipant.add(item_participant_user); // 생성자에 세팅한 값으로 List 추가
-
-                        // 리사이클러뷰 갱신
-                        adapterParticipantList.notifyDataSetChanged();
-                        Participant_list.setAdapter(adapterParticipantList);
-
-                        Log.e(TAG, "userStateManagement: 방장이 유저 목록을 갱신함");
-                    }
+                    Log.e(TAG, "userStateManagement: itemParticipant: null" );
                 }
+                else
+                {
+                    itemParticipant.add(item_participant_user); // 생성자에 세팅한 값으로 List 추가
+                }
+
+                // 리사이클러뷰 갱신
+                adapterWaitingRoom.notifyDataSetChanged();
+                Participant_list.setAdapter(adapterWaitingRoom);
+
+                Log.e(TAG, "userStateManagement: 방장이 유저 목록을 갱신함");
             }
 
             // todo: 참가자는 방장이 정리해준 유저 목록 받기, 리사이클러뷰에 세팅하기
@@ -301,8 +309,8 @@ public class Activity_Waiting_Room extends AppCompatActivity
         if (Task.equals("Out"))
         {
             // 리사이클러뷰 갱신
-            adapterParticipantList.notifyDataSetChanged();
-            Participant_list.setAdapter(adapterParticipantList);
+            adapterWaitingRoom.notifyDataSetChanged();
+            Participant_list.setAdapter(adapterWaitingRoom);
         }
     }
 
@@ -433,132 +441,6 @@ public class Activity_Waiting_Room extends AppCompatActivity
                 Log.e(TAG, "onFailure: t: " + t.getMessage());
             }
         });
-    }
-
-    // todo: 참가자 유저 어댑터 (리사이클러뷰)
-    public class Adapter_Participant extends RecyclerView.Adapter<Adapter_Participant.ViewHolder>
-    {
-        public Adapter_Participant(Context context, List<item_participant_user> item_participant_users)
-        {
-            mContext = context;
-            itemParticipant = item_participant_users;
-        }
-
-        @NonNull
-        @Override
-        public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType)
-        {
-            // 아이템 레이아웃 연결
-            View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_waiting_user, parent, false);
-
-            return new ViewHolder(view);
-        }
-
-        String readyReceive[];
-
-        @Override
-        public void onBindViewHolder(@NonNull final ViewHolder holder, final int position)
-        {
-            // 화면 비율 구하기
-            DisplayMetrics displayMetrics = new DisplayMetrics();
-            ((Activity) holder.player_image.getContext()).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
-            int deviceWidth = displayMetrics.widthPixels;  // 핸드폰의 가로 해상도를 구함.
-//            int deviceHeight = displayMetrics.heightPixels;  // 핸드폰의 세로 해상도를 구함.
-            Log.e(TAG, "onBindViewHolder: deviceWidth    : " + deviceWidth );
-
-            deviceWidth = deviceWidth / 2;
-            Log.e(TAG, "onBindViewHolder: deviceWidth / 2: " + deviceWidth );
-
-            int deviceHeight = (int) ((float) deviceWidth * 1.05);  // 세로의 길이를 가로의 길이의 1배로 or 1.5 = 1.5배로
-//            int deviceHeight = deviceWidth * 1.1;  // 세로의 길이를 가로의 길이의 1배로 or 1.5 = 1.5배로
-
-            // 아 시발 비율 맞추기 존나 어렵네 ㅠㅠㅠㅠㅠ
-            holder.player_image.getLayoutParams().width = deviceWidth;  // 아이템 뷰의 세로 길이를 구한 길이로 변경
-            holder.player_image.getLayoutParams().height = deviceHeight;  // 아이템 뷰의 세로 길이를 구한 길이로 변경
-            holder.player_image.requestLayout(); // 변경 사항 적용
-
-            /**
-             이렇게 하면 동적으로 원하는 크기의 아이템 항목을 구성할 수 있고,
-             재사용 시 스크롤도 자연스럽게 이동한다.
-             (다만 조금 느린 감이 있다.)
-
-             매번 디스 플레이의 값을 구하지 않고,
-             메인에서 한 번만 호출하여 등록해도 된다.
-
-             출처: https://flymogi.tistory.com/entry/안드로이드-리사이클러-뷰-그리드-레이아웃-아이템-세로-동적-비율 [하늘을 난 모기]
-            */
-
-            // 참가자 닉네임
-            holder.join_user_name.setText(itemParticipant.get(position).getUserName());
-
-            // 방 삭제 알림 수신 대기 (핸들러)
-            readyClick = new Handler()
-            {
-                @Override
-                public void handleMessage(Message msg)
-                {
-                    if (msg.what == 1112)
-                    {
-                        String receive = msg.obj.toString();
-                        Log.e(TAG, "handleMessage: receive: " + receive );
-
-                        readyReceive = receive.split(", ");
-
-                        if (position == Integer.parseInt(readyReceive[1]))
-                        {
-                            if (readyReceive[0].equals("ready_off_recycler_view"))
-                            {
-                                Log.e(TAG, "handleMessage: " + readyReceive[1] + "유저 ready Off" );
-                                holder.button_ready.setVisibility(View.GONE);
-                            }
-                            else if(readyReceive[0].equals("ready_on_recycler_view"))
-                            {
-                                Log.e(TAG, "handleMessage: " + readyReceive[1] + "유저 ready On" );
-                                holder.button_ready.setVisibility(View.VISIBLE);
-                            }
-                        }
-                    }
-                }
-            };
-
-            // 준비 버튼 클릭
-            holder.button_ready.setOnClickListener(new View.OnClickListener()
-            {
-                @Override
-                public void onClick(View v)
-                {
-
-                }
-            });
-        }
-
-        @Override
-        public int getItemCount()
-        {
-            return itemParticipant.size();
-        }
-
-        public class ViewHolder extends RecyclerView.ViewHolder
-        {
-            public View view;
-            public TextView join_user_name;
-            public TextView host_mark;
-            public TextView button_ready;
-            public ImageView player_image;
-
-
-            public ViewHolder(@NonNull View itemView)
-            {
-                super(itemView);
-
-                view = itemView;
-
-                join_user_name = itemView.findViewById(R.id.join_user_name);
-                host_mark = itemView.findViewById(R.id.host_mark);
-                button_ready = itemView.findViewById(R.id.button_ready);
-                player_image = itemView.findViewById(R.id.player_image);
-            }
-        }
     }
 }
 
