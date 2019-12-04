@@ -54,7 +54,7 @@ public class adapterWaitingRoom extends RecyclerView.Adapter<adapterWaitingRoom.
     @Override
     public void onBindViewHolder(@NonNull final ViewHolder holder, final int position)
     {
-        // 화면 비율 구하기
+        // todo: 화면 비율 구하기
         DisplayMetrics displayMetrics = new DisplayMetrics();
         ((Activity) holder.player_image.getContext()).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
         int deviceWidth = displayMetrics.widthPixels;  // 핸드폰의 가로 해상도를 구함.
@@ -64,7 +64,7 @@ public class adapterWaitingRoom extends RecyclerView.Adapter<adapterWaitingRoom.
         deviceWidth = deviceWidth / 2;
         Log.e(TAG, "onBindViewHolder: deviceWidth / 2: " + deviceWidth);
 
-        int deviceHeight = (int) ((float) deviceWidth * 1.05);  // 세로의 길이를 가로의 길이의 1배로 or 1.5 = 1.5배로
+        int deviceHeight = (int) ((float) deviceWidth * 0.95);  // 세로의 길이를 가로의 길이의 1배로 or 1.5 = 1.5배로
 //            int deviceHeight = deviceWidth * 1.1;  // 세로의 길이를 가로의 길이의 1배로 or 1.5 = 1.5배로
 
         holder.player_image.getLayoutParams().width = deviceWidth;  // 아이템 뷰의 세로 길이를 구한 길이로 변경

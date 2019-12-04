@@ -62,8 +62,8 @@ public class Activity_Waiting_Room extends AppCompatActivity
     //    private Adapter_Participant adapterParticipantList;
     private adapterWaitingRoom adapterWaitingRoom;
 
-    //    private List<item_participant_user> itemParticipant;
-    private List<item_participant_user> itemParticipant = new ArrayList<>();
+        private List<item_participant_user> itemParticipant;
+//    private List<item_participant_user> itemParticipant = new ArrayList<>();
     private item_participant_user item_participant_user;
 
     private TextView button_waiting_ready;
@@ -85,7 +85,7 @@ public class Activity_Waiting_Room extends AppCompatActivity
 
         mContext = Activity_Waiting_Room.this;
 
-//        itemParticipant = new ArrayList<>();
+        itemParticipant = new ArrayList<item_participant_user>();
 
         // 준비 버튼 클릭 (소켓 통신)
         button_waiting_ready = findViewById(R.id.button_waiting_ready);
@@ -181,7 +181,7 @@ public class Activity_Waiting_Room extends AppCompatActivity
         ReadyTask();
 
         // todo: 참가중인 유저 불러오기
-        getParticipantList();
+//        getParticipantList();
     }
 
     // todo: 레디 버튼 제어
@@ -282,14 +282,15 @@ public class Activity_Waiting_Room extends AppCompatActivity
                 // 생성자에 데이터 세팅하기
                 item_participant_user = new item_participant_user(userName, areYouHost, false);
 
-                if (itemParticipant == null)
+                /*if (itemParticipant == null)
                 {
                     Log.e(TAG, "userStateManagement: itemParticipant: null" );
                 }
+
                 else
-                {
+                {*/
                     itemParticipant.add(item_participant_user); // 생성자에 세팅한 값으로 List 추가
-                }
+//                }
 
                 // 리사이클러뷰 갱신
                 adapterWaitingRoom.notifyDataSetChanged();
