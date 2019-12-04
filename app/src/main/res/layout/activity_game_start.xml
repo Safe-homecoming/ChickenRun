@@ -7,38 +7,73 @@
     android:orientation="vertical"
     tools:context=".GameStart">
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content">
-
-        <com.airbnb.lottie.LottieAnimationView
-            android:layout_marginBottom="20dp"
-            android:layout_gravity="center"
-            android:id="@+id/Lottie_Intro"
+        <FrameLayout
+            android:id="@+id/lotti_lay"
             android:layout_width="match_parent"
-            android:layout_height="500dp"
-            app:lottie_autoPlay="true"
-            app:lottie_fileName="funky-chicken.json"
-            app:lottie_loop="true" />
+            android:layout_height="0dp"
+            android:layout_weight="9">
+            <com.airbnb.lottie.LottieAnimationView
+                android:id="@+id/Lottie_Intro"
+                android:layout_marginBottom="20dp"
+                android:layout_gravity="center"
+                android:layout_width="match_parent"
+                android:layout_height="500dp"
+                app:lottie_autoPlay="false"
+                app:lottie_fileName="funky-chicken.json"
+                app:lottie_loop="true" />
+            <TextView
+                android:id="@+id/countnum"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:textSize="200sp"
+                android:gravity="center_vertical|center_horizontal"
+                android:fontFamily="@font/righteous_regular" />
+        </FrameLayout>
 
-    </FrameLayout>
-
-
-    <EditText
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/editText"/>
+        android:layout_height="0dp"
+        android:orientation="vertical"
+        android:layout_weight="2">
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/button"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="보내기"/>
-
-    <TextView
-        android:id="@+id/result"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:textSize="20sp"
+                android:text="경과 시간 : " />
+            <TextView
+                android:id="@+id/timers"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:textSize="20sp"
+                android:text="00:00:00:00" />
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:orientation="horizontal">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textAlignment="center"
+                android:textSize="20sp"
+                android:text="현재 진행한 거리: " />
+            <TextView
+                android:id="@+id/distence"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="20sp"
+                android:textAlignment="center"
+                android:text="0.0m" />
+        </LinearLayout>
+    </LinearLayout>
 
 </LinearLayout>

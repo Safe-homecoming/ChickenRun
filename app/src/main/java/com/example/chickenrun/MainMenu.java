@@ -13,6 +13,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -33,9 +34,19 @@ public class MainMenu extends AppCompatActivity {
         Idtext = (TextView)findViewById(R.id.idText);// 사용자 id
         Button startbtn = (Button)findViewById(R.id.startbtn);//  게임 시작 버튼
         Button buybtn = (Button)findViewById(R.id.buybtn);
+    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+        //test 소스
+        ImageView testbtn = (ImageView)findViewById(R.id.testbtn);
 
 
-
+        testbtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(MainMenu.this, GameStart.class);
+                startActivity(intent);
+            }
+        });
+        //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
         SharedPreferences pref = getSharedPreferences("chmeminfo", MODE_PRIVATE);
 
         // key에 해당한 value를 불러온다.
