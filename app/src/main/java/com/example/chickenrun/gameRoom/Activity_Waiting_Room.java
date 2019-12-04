@@ -2,18 +2,24 @@ package com.example.chickenrun.gameRoom;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Message;
 import android.text.TextUtils;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -25,17 +31,12 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.chickenrun.ApiClient;
 import com.example.chickenrun.ApiInterface;
-import com.example.chickenrun.Lobby.Activity_Lobby;
-import com.example.chickenrun.Lobby.item_lobby_list;
 import com.example.chickenrun.R;
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,6 +47,7 @@ import retrofit2.Response;
 import retrofit2.Retrofit;
 import retrofit2.converter.gson.GsonConverterFactory;
 
+import static com.example.chickenrun.Lobby.Activity_Lobby.GET_IS_HOST;
 import static com.example.chickenrun.Lobby.Activity_Lobby.GET_MY_JOIN_INDEX;
 import static com.example.chickenrun.Lobby.Activity_Lobby.GET_MY_NAME;
 import static com.example.chickenrun.Lobby.Activity_Lobby.GET_ROOM_INDEX;
@@ -54,22 +56,25 @@ import static com.example.chickenrun.Lobby.Activity_Lobby.HANDLER_DELETE;
 
 public class Activity_Waiting_Room extends AppCompatActivity
 {
-
-    String TAG = "Activity_Waiting_Room";
+    private String TAG = "Activity_Waiting_Room";
 
     private Context mContext;
-    RecyclerView Participant_list;
-    Adapter_Participant adapterParticipantList;
+    private RecyclerView Participant_list;
+    private int Participant_list_size;
+    private Adapter_Participant adapterParticipantList;
 
     private List<item_participant_user> itemParticipant;
+    private item_participant_user item_participant_user;
 
-    TextView button_waiting_ready;
+    private TextView button_waiting_ready;
 
     // 소켓 연결 설정
-    Socket socket;
-
+    private Socket socket;
 
     boolean isReady;
+
+    // 레디 버튼 클릭 신호 수신
+    public static Handler readyClick;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -79,26 +84,39 @@ public class Activity_Waiting_Room extends AppCompatActivity
 
         mContext = Activity_Waiting_Room.this;
 
+        itemParticipant = new ArrayList<>();
 
+        // todo: nodeJS 서버 접속 (socket.io)
         try
         {
             socket = IO.socket("http://ec2-13-125-121-5.ap-northeast-2.compute.amazonaws.com:3000");
             Log.e(TAG, "onCreate: socket: " + socket);
-        }
-
-        catch (Exception e)
+        } catch (Exception e)
         {
             Log.e(TAG, "onCreate: e: " + e.toString());
             e.printStackTrace();
         }
 
-        // 소켓 연결
+        // todo: 상대방의 메시지 수신 대기 (socket.io)
         socket.on(Socket.EVENT_CONNECT, new Emitter.Listener()
         {
             @Override
             public void call(Object... args)
             {
-                socket.emit("message_from_client", "입장: " + GET_MY_NAME);
+
+                if (GET_IS_HOST)
+                {
+                    Log.e(TAG, "call: 방장으로 접속함, 입장 메시지 전송 안 함" );
+                }
+
+                // todo: 입장 알림 메시지 전송
+                else
+                {
+                    Log.e(TAG, "call: 참가자로 접속함, 입장 메시지 전송" );
+                    attemptSend(GET_MY_NAME, GET_ROOM_INDEX, "comeUser", GET_MY_NAME);                    
+                }
+
+
             }
         }).on("message_from_server", new Emitter.Listener()
         {
@@ -112,7 +130,10 @@ public class Activity_Waiting_Room extends AppCompatActivity
                     {
                         Log.e(TAG, "run: args[0]: " + args[0].toString());
 
-                        Toast.makeText(mContext, "args[0].toString()", Toast.LENGTH_SHORT).show();
+                        // todo: 수신받은 메시지 가공해서 사용하기
+                        getSocketMessage(args[0].toString());
+
+                        // Toast.makeText(mContext, args[0].toString(), Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -125,7 +146,31 @@ public class Activity_Waiting_Room extends AppCompatActivity
         // 리사이클러뷰 세팅
         Participant_list = findViewById(R.id.waiting_room_participant);
         Participant_list.setHasFixedSize(true);
-        Participant_list.setLayoutManager(new LinearLayoutManager(mContext));
+        Participant_list.setLayoutManager(new GridLayoutManager(mContext, 2));
+
+        // todo: 방장 먼저 리스트에 추가하기
+        if (GET_IS_HOST)
+        {
+            // 생성자에 데이터 세팅하기
+            item_participant_user = new item_participant_user(GET_MY_NAME, GET_IS_HOST, false);
+            itemParticipant.add(item_participant_user); // 생성자에 세팅한 값으로 List 추가
+        }
+
+        // 구분선 세팅
+        Participant_list.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
+        Participant_list.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.HORIZONTAL));
+
+        adapterParticipantList = new Adapter_Participant(mContext, itemParticipant);
+        Participant_list.setAdapter(adapterParticipantList);
+
+        // todo: 방 입장, 퇴장 처리
+        // 방 생성자라면 방장 활성화
+//        userStateManagement("Come", GET_IS_HOST, GET_MY_NAME);
+        Log.e(TAG, "onCreate: itemParticipant.size(): " + itemParticipant.size() );
+        for (int i = 0; i < itemParticipant.size(); i++)
+        {
+            Log.e(TAG, "onCreate: itemParticipant: Name: " + itemParticipant.get(i).getUserName() );
+        }
 
         // 준비 버튼 클릭 (소켓 통신)
         button_waiting_ready = findViewById(R.id.button_waiting_ready);
@@ -134,26 +179,43 @@ public class Activity_Waiting_Room extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
-                if (isReady)
+                Log.e(TAG, "onCreate: button_waiting_ready: 클릭함" );
+//                Log.e(TAG, "onCreate: itemParticipant.size(): " + itemParticipant.size() );
+                Log.e(TAG, "onCreate: adapterParticipantList.getItemCount(): " + adapterParticipantList.getItemCount() );
+
+                for (int i = 0; i < adapterParticipantList.getItemCount(); i++)
                 {
-                    // 준비 상태 활성화
-                    String message = "Ready|off";
+                    if (itemParticipant.get(i).getUserName().equals(GET_MY_NAME))
+                    {
+                        if (isReady)
+                        {
+                            // 리사이클러뷰로 레디 알림 보내주기
+                            Message hdmg = readyClick.obtainMessage();
+                            Log.e(TAG, "onClick: hdmg = msgHandler.obtainMessage(): " + hdmg);
+                            hdmg.what = 1112;
+                            hdmg.obj = "ready_off_recycler_view, " + GET_MY_NAME;
+                            readyClick.sendMessage(hdmg);
 
-                    socket.emit("message_from_client", message);
-//                    attemptSend(message);
-                    isReady = false;
+                            // 준비 상태 활성화
+                            attemptSend(GET_MY_NAME, GET_ROOM_INDEX, "Ready", "Off");
+                            isReady = false;
+                        }
 
-                    Log.e(TAG, "onClick: message: " + message);
-                } else
-                {
-                    // 준비 상태 비활성화
-                    String message = "Ready|on";
+                        //
+                        else
+                        {
+                            Message hdmg = readyClick.obtainMessage();
+                            Log.e(TAG, "onClick: hdmg = msgHandler.obtainMessage(): " + hdmg);
+                            hdmg.what = 1112;
+                            hdmg.obj = "ready_on_recycler_view";
+                            readyClick.sendMessage(hdmg);
 
-                    attemptSend(message);
+                            // 준비 상태 비활성화
+                            attemptSend(GET_MY_NAME, GET_ROOM_INDEX, "Ready", "On");
 
-                    isReady = true;
-
-                    Log.e(TAG, "onClick: message: " + message);
+                            isReady = true;
+                        }
+                    }
                 }
             }
         });
@@ -162,18 +224,101 @@ public class Activity_Waiting_Room extends AppCompatActivity
         getParticipantList();
     }
 
-    // 메시지 전송
-    private void attemptSend(String message)
+    String ioMessage[];
+
+    // todo: 수신받은 메시지 가공해서 사용하기
+    private void getSocketMessage(String message)
     {
-        Log.e(TAG, "attemptReadyOn: 클릭함");
+        if (message.equals("hello, world"))
+        {
+            Log.e(TAG, "getSocketMessage: message: " + message);
+        } else
+        {
+            ioMessage = message.split(", ");
+
+            Log.e(TAG, "getSocketMessage: 메시지 보낸 유저  : " + ioMessage[0]);
+            Log.e(TAG, "getSocketMessage: 방 번호           : " + ioMessage[1]);
+            Log.e(TAG, "getSocketMessage: 타입              : " + ioMessage[2]);
+            Log.e(TAG, "getSocketMessage: 내용              : " + ioMessage[3]);
+
+            // todo: 유저 입장
+            if (ioMessage[2].equals("comeUser"))
+            {
+                // 입장한 유저
+                Log.e(TAG, "getSocketMessage: 입장한 유저: " + ioMessage[3]);
+
+                // todo: 방 입장, 퇴장 처리
+                userStateManagement("Come", false, ioMessage[3]);
+            }
+
+            // todo: 유저 퇴장
+            if (ioMessage[2].equals("outUser"))
+            {
+                // 퇴장한 유저
+                Log.e(TAG, "getSocketMessage: 퇴장한 유저: " + ioMessage[3]);
+
+            }
+        }
+    }
+
+    // todo: 방 입장, 퇴장 처리
+    private void userStateManagement(String Task, boolean areYouHost, String userName)
+    {
+        // 신규 유저가 방 입장했을 때 리사이클러뷰 처리
+        if (Task.equals("Come"))
+        {
+            // 방장에게 유저 목록 정리 맡기기 & 방장인 회원 추리기
+            if (GET_IS_HOST)
+            {
+                for (int i = 0; i < itemParticipant.size(); i++)
+                {
+                    // isHost == true: 방장
+                    if (itemParticipant.get(i).isHost)
+                    {
+                        Log.e(TAG, "userStateManagement: 방장 권한으로 유저 추가함 " + itemParticipant.get(i).isHost );
+
+                        // 생성자에 데이터 세팅하기
+                        item_participant_user = new item_participant_user(userName, areYouHost, false);
+                        itemParticipant.add(item_participant_user); // 생성자에 세팅한 값으로 List 추가
+
+                        // 리사이클러뷰 갱신
+                        adapterParticipantList.notifyDataSetChanged();
+                        Participant_list.setAdapter(adapterParticipantList);
+
+                        Log.e(TAG, "userStateManagement: 방장이 유저 목록을 갱신함");
+                    }
+                }
+            }
+
+            // todo: 참가자는 방장이 정리해준 유저 목록 받기, 리사이클러뷰에 세팅하기
+            else
+            {
+
+            }
+        }
+
+        // 방 퇴장했을 때 리사이클러뷰 처리
+        if (Task.equals("Out"))
+        {
+            // 리사이클러뷰 갱신
+            adapterParticipantList.notifyDataSetChanged();
+            Participant_list.setAdapter(adapterParticipantList);
+        }
+    }
+
+    // 메시지 전송
+    private void attemptSend(String sendUser, String currentRoomNum, String messageType, String message)
+    {
         if (TextUtils.isEmpty(message))
         {
             Log.e(TAG, "attemptSend: message.Empty?");
             return;
         }
 
-        socket.emit("message_from_client", message);
-        Log.e(TAG, "attemptSend: 전송한 메시지: " + message);
+        String sendMessage = sendUser + ", " + currentRoomNum + ", " + messageType + ", " + message;
+
+        socket.emit("message_from_client", sendMessage);
+        Log.e(TAG, "attemptSend: 전송한 메시지: " + sendMessage);
     }
 
     @Override
@@ -183,7 +328,7 @@ public class Activity_Waiting_Room extends AppCompatActivity
 
         // 소켓 연결 해제
         socket.disconnect();
-        //        socket.off("new message", onNewMessage);
+        // socket.off("new message", onNewMessage);
 
         // todo: 방 퇴장하기 (mysql)
         disconnectRoom(GET_ROOM_INDEX, GET_MY_JOIN_INDEX);
@@ -309,11 +454,72 @@ public class Activity_Waiting_Room extends AppCompatActivity
             return new ViewHolder(view);
         }
 
+        String readyReceive[];
+
         @Override
-        public void onBindViewHolder(@NonNull ViewHolder holder, int position)
+        public void onBindViewHolder(@NonNull final ViewHolder holder, final int position)
         {
+            // 화면 비율 구하기
+            DisplayMetrics displayMetrics = new DisplayMetrics();
+            ((Activity) holder.player_image.getContext()).getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+            int deviceWidth = displayMetrics.widthPixels;  // 핸드폰의 가로 해상도를 구함.
+//            int deviceHeight = displayMetrics.heightPixels;  // 핸드폰의 세로 해상도를 구함.
+            Log.e(TAG, "onBindViewHolder: deviceWidth    : " + deviceWidth );
+
+            deviceWidth = deviceWidth / 2;
+            Log.e(TAG, "onBindViewHolder: deviceWidth / 2: " + deviceWidth );
+
+            int deviceHeight = (int) ((float) deviceWidth * 1.05);  // 세로의 길이를 가로의 길이의 1배로 or 1.5 = 1.5배로
+//            int deviceHeight = deviceWidth * 1.1;  // 세로의 길이를 가로의 길이의 1배로 or 1.5 = 1.5배로
+
+            // 아 시발 비율 맞추기 존나 어렵네 ㅠㅠㅠㅠㅠ
+            holder.player_image.getLayoutParams().width = deviceWidth;  // 아이템 뷰의 세로 길이를 구한 길이로 변경
+            holder.player_image.getLayoutParams().height = deviceHeight;  // 아이템 뷰의 세로 길이를 구한 길이로 변경
+            holder.player_image.requestLayout(); // 변경 사항 적용
+
+            /**
+             이렇게 하면 동적으로 원하는 크기의 아이템 항목을 구성할 수 있고,
+             재사용 시 스크롤도 자연스럽게 이동한다.
+             (다만 조금 느린 감이 있다.)
+
+             매번 디스 플레이의 값을 구하지 않고,
+             메인에서 한 번만 호출하여 등록해도 된다.
+
+             출처: https://flymogi.tistory.com/entry/안드로이드-리사이클러-뷰-그리드-레이아웃-아이템-세로-동적-비율 [하늘을 난 모기]
+            */
+
             // 참가자 닉네임
-            holder.join_user_name.setText("");
+            holder.join_user_name.setText(itemParticipant.get(position).getUserName());
+
+            // 방 삭제 알림 수신 대기 (핸들러)
+            readyClick = new Handler()
+            {
+                @Override
+                public void handleMessage(Message msg)
+                {
+                    if (msg.what == 1112)
+                    {
+                        String receive = msg.obj.toString();
+                        Log.e(TAG, "handleMessage: receive: " + receive );
+
+                        readyReceive = receive.split(", ");
+
+                        if (position == Integer.parseInt(readyReceive[1]))
+                        {
+                            if (readyReceive[0].equals("ready_off_recycler_view"))
+                            {
+                                Log.e(TAG, "handleMessage: " + readyReceive[1] + "유저 ready Off" );
+                                holder.button_ready.setVisibility(View.GONE);
+                            }
+                            else if(readyReceive[0].equals("ready_on_recycler_view"))
+                            {
+                                Log.e(TAG, "handleMessage: " + readyReceive[1] + "유저 ready On" );
+                                holder.button_ready.setVisibility(View.VISIBLE);
+                            }
+                        }
+                    }
+                }
+            };
 
             // 준비 버튼 클릭
             holder.button_ready.setOnClickListener(new View.OnClickListener()
@@ -338,6 +544,8 @@ public class Activity_Waiting_Room extends AppCompatActivity
             public TextView join_user_name;
             public TextView host_mark;
             public TextView button_ready;
+            public ImageView player_image;
+
 
             public ViewHolder(@NonNull View itemView)
             {
@@ -348,7 +556,31 @@ public class Activity_Waiting_Room extends AppCompatActivity
                 join_user_name = itemView.findViewById(R.id.join_user_name);
                 host_mark = itemView.findViewById(R.id.host_mark);
                 button_ready = itemView.findViewById(R.id.button_ready);
+                player_image = itemView.findViewById(R.id.player_image);
             }
         }
     }
 }
+
+
+/*        // todo: 내가 보낸 메시지 돌려받기 (socket.io)
+        socket.on("message_return_from_server", new Emitter.Listener()
+        {
+            @Override
+            public void call(final Object... args)
+            {
+                runOnUiThread(new Runnable()
+                {
+                    @Override
+                    public void run()
+                    {
+                        Log.e(TAG, "run: self: " + args[0].toString());
+
+                        // todo: 수신받은 메시지 가공해서 사용하기
+                        getSocketMessage(args[0].toString());
+
+                        // Toast.makeText(mContext, args[0].toString(), Toast.LENGTH_SHORT).show();
+                    }
+                });
+            }
+        }); socket.connect();*/
