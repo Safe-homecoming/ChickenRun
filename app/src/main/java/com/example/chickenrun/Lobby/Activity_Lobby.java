@@ -57,7 +57,7 @@ public class Activity_Lobby extends AppCompatActivity
     TextView button_create_room;
 
     public static String GET_ROOM_INDEX, GET_MY_JOIN_INDEX, GET_ROOM_NAME, GET_MY_NAME;
-
+    public static boolean GET_IS_HOST;
     public String memId;
 
     // 방 삭제 알림 수신 대기 (핸들러)
@@ -137,6 +137,7 @@ public class Activity_Lobby extends AppCompatActivity
 
                         // todo: 방 생성 (mysql)
                         createRoom(roomTitle);
+                        dialog.dismiss();
                     }
                 });
                 dialog.show();
@@ -187,7 +188,8 @@ public class Activity_Lobby extends AppCompatActivity
                             Log.e(TAG, "createRoom: 방 생성 완료");
 
                             // 방장에게 방 인덱스 알려주기 (방 퇴장 처리 할 때 필요)
-                            GET_ROOM_INDEX = createRoomData[0];
+                            GET_ROOM_INDEX = createRoomData[1];
+                            GET_IS_HOST = true; // false = 방 구성원 / true = 방장
 
                             // 게임 대기방으로 이동
                             Intent intent = new Intent(mContext, Activity_Waiting_Room.class);
@@ -301,6 +303,7 @@ public class Activity_Lobby extends AppCompatActivity
                     // 방 번호 담아두기 (퇴장 할 때 필요)
                     GET_ROOM_INDEX = itemLobbyList.get(position).roomIndex;
                     GET_ROOM_NAME = itemLobbyList.get(position).getRoomName();
+                    GET_IS_HOST = false; // false = 방 구성원 / true = 방장
                     Log.e(TAG, "onClick: " + memId + "님이 " + GET_ROOM_INDEX + "번 방에 입장합니다.");
 
                     // todo: 방 입장하기 (mysql)
@@ -359,6 +362,8 @@ public class Activity_Lobby extends AppCompatActivity
 
                                 // 내 방 참가정보 가지고 있기 (방에서 퇴장 하면서 내 참가정보 삭제할 때 필요)
                                 GET_MY_JOIN_INDEX = joinResult[1];
+
+                                Log.e(TAG, "onResponse: GET_MY_JOIN_INDEX: " + GET_MY_JOIN_INDEX );
 
                                 Intent intent = new Intent(mContext, Activity_Waiting_Room.class);
                                 startActivity(intent);
