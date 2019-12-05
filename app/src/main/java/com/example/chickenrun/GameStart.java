@@ -218,28 +218,13 @@ public class GameStart extends AppCompatActivity
         });
         socket.connect();
         //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-//        editText = (EditText) findViewById(R.id.editText);
-//        textView = (TextView) findViewById(R.id.result);
-//        button = (Button) findViewById(R.id.button);
-
 
         lottilay = (FrameLayout) findViewById(R.id.lotti_lay);
         countview = (TextView) findViewById(R.id.countnum);
-        //chronometer = (Chronometer) findViewById(R.id.timers);
 
 
         timersview = (TextView) findViewById(R.id.timers);
         distenceview = (TextView) findViewById(R.id.distence);
-
-//        button.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                isThread = false;
-//                thread.interrupt();
-//                String msg = editText.getText().toString();
-//                //socket.emit("message_from_client", msg);
-//            }
-//        });
 
         // TODO: (성훈) ========================================================
 
@@ -251,7 +236,7 @@ public class GameStart extends AppCompatActivity
 
             // 타이머 사용 용도 설정
             timerType = "gameStart"; // 'request' == 6 초 후에 안심이 조회 시작. 로딩 느낌 나게끔 만들기
-            TIMEOUT = 5000; // 타이머 종료할 시간 6초로 설정
+            TIMEOUT = 3000; // 타이머 종료할 시간 2초로 설정
             tempTask(); // 타이머 시작
         }
     }
@@ -304,7 +289,7 @@ public class GameStart extends AppCompatActivity
                 if (timerType.equals("gameStart"))
                 {
                     // 3초 후 게임 시작 알림 전달
-                    if (Integer.parseInt(text) == 3)
+                    if (Integer.parseInt(text) == 2)
                     {
                         timer.cancel(); // 타이머 중단
                         attemptSend(GET_MY_NAME, GET_ROOM_INDEX, "GameProgressSignal", "countStart");
@@ -341,6 +326,7 @@ public class GameStart extends AppCompatActivity
                 {
                     Log.e(TAG, "getSocketMessage: 게임 시작 카운트다운 시작");
 
+                    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
                     // 타이머 시작!
                     isThread = true;
                     thread = new Thread()
@@ -398,7 +384,7 @@ public class GameStart extends AppCompatActivity
         Log.e(TAG, "attemptSend: 전송한 메시지: " + sendMessage);
     }
 
-    // todo: (성훈) ========================================================
+    // todo: (성훈 끝) ========================================================
 
     private Handler handler = new Handler()
     {
@@ -468,80 +454,6 @@ public class GameStart extends AppCompatActivity
         }
 
     };
-
-    //timeThread 의 핸들러임 경기가 진행된 시간을 계산해서 보기 쉽게 만들어줌
-//    @SuppressLint("HandlerLeak")
-//    Handler handler2 = new Handler() {
-//        @Override
-//        public void handleMessage(Message msg) {
-//            int mSec = msg.arg1 % 100;
-//            int sec = (msg.arg1 / 100) % 60;
-//            int min = (msg.arg1 / 100) / 60;
-//            int hour = (msg.arg1 / 100) / 360;
-//            //1000이 1초 1000*60 은 1분 1000*60*10은 10분 1000*60*60은 한시간
-//
-//            String result = String.format("%02d:%02d:%02d:%02d", hour, min, sec, mSec);
-//            timersview.setText(result);
-//        }
-//    };
-
-    // 게임이 시작 한후 경기 시간을 잰다.
-    // timeThread를 이용하여 시간을 보여줌.
-    public class timeThread implements Runnable
-    {
-        @Override
-        public void run()
-        {
-            int i = 0;
-//            try
-//            {
-//                Thread.sleep(200);
-//            } catch (InterruptedException e)
-//            {
-//                e.printStackTrace();
-//            }
-            while (true)
-            {
-                while (isRunning)
-                { //일시정지를 누르면 멈춤
-                    final Message msg = new Message();
-
-                    msg.arg1 = i++;
-                    // handler2.sendMessage(msg);
-                    try
-                    {
-                        runOnUiThread(new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                int mSec = msg.arg1 % 100;
-                                int sec = (msg.arg1 / 100) % 60;
-                                int min = (msg.arg1 / 100) / 60;
-                                int hour = (msg.arg1 / 100) / 360;
-                                String result = String.format("%02d:%02d:%02d", min, sec, mSec);
-                                timersview.setText(result);
-                            }
-                        });
-                        Thread.sleep(100);
-                    } catch (InterruptedException e)
-                    {
-                        e.printStackTrace();
-                        runOnUiThread(new Runnable()
-                        {
-                            @Override
-                            public void run()
-                            {
-                                timersview.setText("");
-                                timersview.setText("00:00:00:00");
-                            }
-                        });
-                        return; // 인터럽트 받을 경우 return
-                    } //catch 문
-                } // isRunnuing(while문)
-            }// while(true) 문
-        }
-    }
 
     // 거리계산 핸들러
     Handler handler3 = new Handler()
