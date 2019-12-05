@@ -47,12 +47,9 @@ public class Activity_Waiting_Room extends AppCompatActivity
 
     private Context mContext;
     private RecyclerView Participant_list;
-    private int Participant_list_size;
-    //    private Adapter_Participant adapterParticipantList;
     private adapterWaitingRoom adapterWaitingRoom;
 
     private List<item_participant_user> itemParticipant;
-    //    private List<item_participant_user> itemParticipant = new ArrayList<>();
     private item_participant_user item_participant_user;
 
     private TextView button_waiting_ready;
@@ -64,7 +61,6 @@ public class Activity_Waiting_Room extends AppCompatActivity
 
     // 레디 버튼 클릭 신호 수신
     public static Handler HANDLER_READY_CLICK;
-    private Handler joinUser;
 
     private FrameLayout user_space;
     public static int GET_HEIGHT_USER_SPACE;
@@ -77,7 +73,7 @@ public class Activity_Waiting_Room extends AppCompatActivity
                     R.drawable.ic_person_gray
             };
 
-    String iconPath;
+    boolean isGameOut = false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -90,6 +86,20 @@ public class Activity_Waiting_Room extends AppCompatActivity
         // 준비 버튼 클릭 (소켓 통신)
         button_waiting_ready = findViewById(R.id.button_waiting_ready);
 
+        // 방 제목 세팅
+        TextView room_name = findViewById(R.id.room_name);
+        room_name.setText(GET_ROOM_NAME);
+
+        // todo: 소켓 io 통신 설정
+        setSocketReceive();
+
+        // todo: 레디 버튼 제어
+        ReadyTask();
+    }
+
+    // todo: 소켓 io 통신 설정
+    private void setSocketReceive()
+    {
         // todo: nodeJS 서버 접속 (socket.io)
         try
         {
@@ -139,49 +149,7 @@ public class Activity_Waiting_Room extends AppCompatActivity
             }
         });
         socket.connect();
-
-        TextView room_name = findViewById(R.id.room_name);
-        room_name.setText(GET_ROOM_NAME);
-
-/*
-        // 리사이클러뷰 세팅
-        Participant_list = findViewById(R.id.waiting_room_participant);
-        Participant_list.setHasFixedSize(true);
-        Participant_list.setLayoutManager(new GridLayoutManager(mContext, 2));
-*/
-
-/*        // todo: 방장 먼저 리스트에 추가하기
-        if (GET_IS_HOST)
-        {
-            // 생성자에 데이터 세팅하기
-            item_participant_user = new item_participant_user(GET_MY_NAME, GET_IS_HOST, false);
-            itemParticipant.add(item_participant_user); // 생성자에 세팅한 값으로 List 추가
-        }
-
-        // 구분선 세팅
-        Participant_list.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
-        Participant_list.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.HORIZONTAL));
-
-        adapterWaitingRoom = new adapterWaitingRoom(mContext, itemParticipant);
-        Participant_list.setAdapter(adapterWaitingRoom);*/
-
-        // todo: 방 입장, 퇴장 처리
-        // 방 생성자라면 방장 활성화
-//        userStateManagement("Come", GET_IS_HOST, GET_MY_NAME);
-/*        Log.e(TAG, "onCreate: itemParticipant.size(): " + itemParticipant.size());
-        for (int i = 0; i < itemParticipant.size(); i++)
-        {
-            Log.e(TAG, "onCreate: itemParticipant: Name: " + itemParticipant.get(i).getUserName());
-        }*/
-
-        // todo: 레디 버튼 제어
-        ReadyTask();
-
-        // todo: 참가중인 유저 불러오기 (mysql)
-//        getParticipantList();
     }
-
-    boolean isGameOut = false;
 
     @Override
     public void onWindowFocusChanged(boolean hasFocus)
@@ -234,34 +202,8 @@ public class Activity_Waiting_Room extends AppCompatActivity
         Participant_list.setAdapter(adapterWaitingRoom);
     }
 
-    public String getUserIcon(String userName)
-    {
-        if (userName.equals("hoonkim1"))
-        {
-            iconPath = "R.drawable.ic_person_pink";
-        }
-
-        else if (userName.equals("chickenman"))
-        {
-            iconPath = "R.drawable.ic_person_pink";
-        }
-
-        else if (userName.equals("chickengirl"))
-        {
-            iconPath = "R.drawable.ic_person_pink";
-        }
-
-        else if (userName.equals("chickenhero"))
-        {
-            iconPath = "R.drawable.ic_person_pink";
-        }
-
-        return iconPath;
-    }
-
-    int readyCount;
-
     // todo: 레디 버튼 제어
+    int readyCount;
     private void ReadyTask()
     {
         button_waiting_ready.setOnClickListener(new View.OnClickListener()
@@ -555,7 +497,7 @@ public class Activity_Waiting_Room extends AppCompatActivity
         }
     }
 
-    // 메시지 전송
+    // todo: 메시지 전송
     private void attemptSend(String sendUser, String currentRoomNum, String messageType, String message)
     {
         if (TextUtils.isEmpty(message))
@@ -649,8 +591,6 @@ public class Activity_Waiting_Room extends AppCompatActivity
 
     }
 }
-
-
 
 
 /*    // todo: 참가중인 유저 불러오기
