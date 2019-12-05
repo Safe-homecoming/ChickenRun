@@ -22,20 +22,24 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 
+import android.os.SystemClock;
 import android.speech.tts.TextToSpeech;
 import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
 
+import java.util.List;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -91,6 +95,12 @@ public class GameStart extends AppCompatActivity
 
     LocationManager lm;
 
+    // 타임 쓰레드 관련
+    long MillisecondTime, StartTime, TimeBuff, UpdateTime = 0L ;
+
+    Handler handler4;
+
+    int Seconds, Minutes, MilliSeconds ;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -419,15 +429,44 @@ public class GameStart extends AppCompatActivity
                 animationView.playAnimation();//애니메이션 start
 
 
-                //  chronometer.start();
-                timeThread = new Thread(new timeThread());
-                timeThread.start();
+              //  chronometer.start();
+//                timeThread = new Thread(new timeThread());
+//                timeThread.start();
+                handler4 = new Handler() ;
+                StartTime = SystemClock.uptimeMillis();
+                handler4.postDelayed(runnable, 0);
                 gpsThread = new Thread(new gpsThread());
                 gpsThread.start();
 
 
             }
         }
+    };
+
+    public Runnable runnable = new Runnable() {
+
+        public void run() {
+
+            MillisecondTime = SystemClock.uptimeMillis() - StartTime;
+
+            UpdateTime = TimeBuff + MillisecondTime;
+
+            Seconds = (int) (UpdateTime / 1000);
+
+            Minutes = Seconds / 60;
+
+            Seconds = Seconds % 60;
+
+            MilliSeconds = (int) (UpdateTime % 1000);
+            //timersview.setText(result);
+            // timersview.setText("" + Minutes + ":"
+            timersview.setText("" + String.format("%02d", Minutes) + ":"
+                    + String.format("%02d", Seconds) + ":"
+                    + String.format("%03d", MilliSeconds));
+
+            handler.postDelayed(this, 0);
+        }
+
     };
 
     //timeThread 의 핸들러임 경기가 진행된 시간을 계산해서 보기 쉽게 만들어줌
@@ -454,13 +493,13 @@ public class GameStart extends AppCompatActivity
         public void run()
         {
             int i = 0;
-            try
-            {
-                Thread.sleep(200);
-            } catch (InterruptedException e)
-            {
-                e.printStackTrace();
-            }
+//            try
+//            {
+//                Thread.sleep(200);
+//            } catch (InterruptedException e)
+//            {
+//                e.printStackTrace();
+//            }
             while (true)
             {
                 while (isRunning)
@@ -672,6 +711,8 @@ public class GameStart extends AppCompatActivity
         }
     };
 
+
+   
 
     @Override
     protected void onDestroy()

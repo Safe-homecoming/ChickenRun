@@ -28,9 +28,9 @@
 
         <activity android:name=".GameResult">
 
+
         </activity>
         <activity android:name=".GameStart">
-
 
         </activity>
         <activity android:name=".gameRoom.Activity_Waiting_Room" />
