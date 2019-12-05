@@ -20,6 +20,9 @@ import static com.example.chickenrun.gameRoom.Activity_Waiting_Room.GET_HEIGHT_U
 import static com.example.chickenrun.gameRoom.Activity_Waiting_Room.HANDLER_READY_CLICK;
 
 import com.example.chickenrun.R;
+import com.squareup.picasso.MemoryPolicy;
+import com.squareup.picasso.NetworkPolicy;
+import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -85,6 +88,56 @@ public class adapterWaitingRoom extends RecyclerView.Adapter<adapterWaitingRoom.
          출처: https://flymogi.tistory.com/entry/안드로이드-리사이클러-뷰-그리드-레이아웃-아이템-세로-동적-비율 [하늘을 난 모기]
          */
 
+        if (itemParticipant.get(position).getUserName().equals("hoonkim1"))
+        {
+            holder.player_image.setImageResource(itemParticipant.get(position).getUserIcon()[0]);
+        }
+
+        else if (itemParticipant.get(position).getUserName().equals("chickenman"))
+        {
+            holder.player_image.setImageResource(itemParticipant.get(position).getUserIcon()[1]);
+        }
+
+        else if (itemParticipant.get(position).getUserName().equals("chickengirl"))
+        {
+            holder.player_image.setImageResource(itemParticipant.get(position).getUserIcon()[2]);
+        }
+
+        else if (itemParticipant.get(position).getUserName().equals("chickenhero"))
+        {
+            holder.player_image.setImageResource(itemParticipant.get(position).getUserIcon()[3]);
+        }
+
+
+//        Log.e(TAG, "onBindViewHolder: itemParticipant.get(position).getUserIcon()[0]: " + itemParticipant.get(position).getUserIcon()[0] );
+//        Log.e(TAG, "onBindViewHolder: itemParticipant.get(position).getUserIcon()[1]: " + itemParticipant.get(position).getUserIcon()[1] );
+//        Log.e(TAG, "onBindViewHolder: itemParticipant.get(position).getUserIcon()[2]: " + itemParticipant.get(position).getUserIcon()[2] );
+//        Log.e(TAG, "onBindViewHolder: itemParticipant.get(position).getUserIcon()[3]: " + itemParticipant.get(position).getUserIcon()[3] );
+
+//        if (itemParticipant.get(i).getUserName().equals("hoonkim1"))
+//        {
+//            holder.player_image.setImageResource(R.drawable.ic_person_pink);
+//        }
+//
+//        else if (itemParticipant.get(i).getUserName().equals("chickenman"))
+//        {
+//            holder.player_image.setImageResource(R.drawable.ic_person_black);
+//        }
+//
+//        else if (itemParticipant.get(i).getUserName().equals("chickengirl"))
+//        {
+//            holder.player_image.setImageResource(R.drawable.ic_person_blue);
+//        }
+//
+//        else if (itemParticipant.get(i).getUserName().equals("chickenhero"))
+//        {
+//            holder.player_image.setImageResource(R.drawable.ic_person_gray);
+//        }
+
+//        holder.player_image.setImageResource(Integer.parseInt(itemParticipant.get(position).getIcon()));
+
+//        Log.e(TAG, "onBindViewHolder: itemParticipant.get(position).getIcon(): " + itemParticipant.get(position).getIcon() );
+
         // 참가자 닉네임
         holder.join_user_name.setText(itemParticipant.get(position).getUserName());
 
@@ -107,6 +160,7 @@ public class adapterWaitingRoom extends RecyclerView.Adapter<adapterWaitingRoom.
         {
             holder.button_ready.setVisibility(View.GONE);
         }
+
 
         // 레디 클릭 알림 수신 대기 (핸들러)
 /*        HANDLER_READY_CLICK = new Handler()
