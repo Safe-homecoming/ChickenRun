@@ -112,27 +112,25 @@ public class GameStart extends AppCompatActivity {
 
         // count 쓰레드
         //경기 시작을 알려주는 count 쓰레드
-//        isThread = true;
-//        thread = new Thread(){
-//            public void run(){
-//                while (cnt <= 4){ //
-////                    Log.i("cntcntcntcnt","      "+cnt);
-//                    try{
-//                        sleep(1000);
-//                    }catch (InterruptedException e){
-//                        e.printStackTrace();
-//                        thread.interrupt();
-//                    }
-//                    handler.sendEmptyMessage(0);
-////                    Log.i("cntcntcntcnt222222222","      "+cnt);
-//                }
-//            }
-//        };
-//        thread.start();
+        isThread = true;
+        thread = new Thread(){
+            public void run(){
+                while (cnt <= 4){ //
+//                    Log.i("cntcntcntcnt","      "+cnt);
+                    try{
+                        sleep(1000);
+                    }catch (InterruptedException e){
+                        e.printStackTrace();
+                        thread.interrupt();
+                    }
+                    handler.sendEmptyMessage(0);
+//                    Log.i("cntcntcntcnt222222222","      "+cnt);
+                }
+            }
+        };
+        thread.start();
 
 
-        timeThread = new Thread(new timeThread());
-        timeThread.start();
 
         //현재위치 가져오기
         curLocation();
@@ -236,20 +234,20 @@ public class GameStart extends AppCompatActivity {
     };
 
     //timeThread 의 핸들러임 경기가 진행된 시간을 계산해서 보기 쉽게 만들어줌
-    @SuppressLint("HandlerLeak")
-    Handler handler2 = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            int mSec = msg.arg1 % 100;
-            int sec = (msg.arg1 / 100) % 60;
-            int min = (msg.arg1 / 100) / 60;
-            int hour = (msg.arg1 / 100) / 360;
-            //1000이 1초 1000*60 은 1분 1000*60*10은 10분 1000*60*60은 한시간
-
-            String result = String.format("%02d:%02d:%02d:%02d", hour, min, sec, mSec);
-            timersview.setText(result);
-        }
-    };
+//    @SuppressLint("HandlerLeak")
+//    Handler handler2 = new Handler() {
+//        @Override
+//        public void handleMessage(Message msg) {
+//            int mSec = msg.arg1 % 100;
+//            int sec = (msg.arg1 / 100) % 60;
+//            int min = (msg.arg1 / 100) / 60;
+//            int hour = (msg.arg1 / 100) / 360;
+//            //1000이 1초 1000*60 은 1분 1000*60*10은 10분 1000*60*60은 한시간
+//
+//            String result = String.format("%02d:%02d:%02d:%02d", hour, min, sec, mSec);
+//            timersview.setText(result);
+//        }
+//    };
 
     // 게임이 시작 한후 경기 시간을 잰다.
     // timeThread를 이용하여 시간을 보여줌.
