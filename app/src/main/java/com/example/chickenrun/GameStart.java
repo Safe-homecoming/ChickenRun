@@ -48,7 +48,7 @@ import static com.example.chickenrun.gameRoom.adapterWaitingRoom.itemParticipant
 
 /*
  * 사용자들이 게임을 시작하기 위한 화면, 시작후 화면
- * */
+ **/
 public class GameStart extends AppCompatActivity
 {
 
