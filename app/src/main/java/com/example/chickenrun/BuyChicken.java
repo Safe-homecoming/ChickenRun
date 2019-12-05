@@ -3,6 +3,7 @@ package com.example.chickenrun;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.util.Log;
@@ -262,6 +263,9 @@ public class BuyChicken extends AppCompatActivity
         if (isPay)
         {
             isPay = false;
+
+            Intent intent = new Intent(BuyChicken.this, MainMenu.class);
+            startActivity(intent);
             finish();
         }
     }

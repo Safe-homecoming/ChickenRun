@@ -44,6 +44,7 @@ public class MainMenu extends AppCompatActivity {
             public void onClick(View v) {
                 Intent intent = new Intent(MainMenu.this, GameStart.class);
                 startActivity(intent);
+                finish();
             }
         });
         //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
