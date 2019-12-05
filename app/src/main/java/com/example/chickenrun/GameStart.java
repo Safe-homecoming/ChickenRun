@@ -89,6 +89,7 @@ public class GameStart extends AppCompatActivity {
         setContentView(R.layout.activity_game_start);
 
 
+
             //안드로이드 시스템에서 GPS를 통한 위치 서비스를 가져오려고함 .
          lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         // Lotti 애니메이션 셋팅
@@ -110,16 +111,16 @@ public class GameStart extends AppCompatActivity {
             }
         });
 
-        // count 쓰레드
-        //경기 시작을 알려주는 count 쓰레드
+
         isThread = true;
-        thread = new Thread(){
-            public void run(){
-                while (cnt <= 4){ //
-//                    Log.i("cntcntcntcnt","      "+cnt);
-                    try{
+        thread = new Thread() {
+            public void run() {
+
+                while (cnt <= 4) { //
+                    Log.i("cntcntcntcnt", "      " + cnt);
+                    try {
                         sleep(1000);
-                    }catch (InterruptedException e){
+                    } catch (InterruptedException e) {
                         e.printStackTrace();
                         thread.interrupt();
                     }
@@ -129,8 +130,6 @@ public class GameStart extends AppCompatActivity {
             }
         };
         thread.start();
-
-
 
         //현재위치 가져오기
         curLocation();
@@ -194,7 +193,6 @@ public class GameStart extends AppCompatActivity {
 
 
 
-
     }
 
 
@@ -255,7 +253,11 @@ public class GameStart extends AppCompatActivity {
         @Override
         public void run() {
              int i = 0;
-
+            try {
+                Thread.sleep(200);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             while (true) {
                 while (isRunning) { //일시정지를 누르면 멈춤
                     final Message msg = new Message();
@@ -274,7 +276,7 @@ public class GameStart extends AppCompatActivity {
                                               timersview.setText(result);
                                           }
                                       });
-                        Thread.sleep(10);
+                        Thread.sleep(100);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                         runOnUiThread(new Runnable(){
@@ -440,6 +442,9 @@ public class GameStart extends AppCompatActivity {
 
         }
     };
+
+
+   
 
     @Override
     protected void onDestroy() {
