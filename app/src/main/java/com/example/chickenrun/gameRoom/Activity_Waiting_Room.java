@@ -25,6 +25,7 @@ import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
 import com.example.chickenrun.GameStart;
 import com.example.chickenrun.R;
+
 import com.github.nkzawa.emitter.Emitter;
 import com.github.nkzawa.socketio.client.IO;
 import com.github.nkzawa.socketio.client.Socket;
@@ -151,165 +152,6 @@ public class Activity_Waiting_Room extends AppCompatActivity
         socket.connect();
     }
 
-    @Override
-    public void onWindowFocusChanged(boolean hasFocus)
-    {
-
-        // 유저를 표시할 공간 크기 구하기 (높이만)
-        user_space = findViewById(R.id.user_space);
-        GET_HEIGHT_USER_SPACE = user_space.getHeight();
-        Log.e(TAG, "onCreate: GET_HEIGHT_USER_SPACE: " + GET_HEIGHT_USER_SPACE);
-        Log.e(TAG, "onCreate: GET_HEIGHT_USER_SPACE / 2: " + GET_HEIGHT_USER_SPACE / 2);
-
-        // 리사이클러뷰 세팅
-        Participant_list = findViewById(R.id.waiting_room_participant);
-        Participant_list.setHasFixedSize(true);
-        Participant_list.setLayoutManager(new GridLayoutManager(mContext, 2));
-
-        itemParticipant = new ArrayList<item_participant_user>();
-
-        // todo: 방장 먼저 리스트에 추가하기
-        if (GET_IS_HOST)
-        {
-            if (isGameStart || isGameOut)
-            {
-                Log.e(TAG, "onWindowFocusChanged: 게임 시작" );
-            }
-
-            else
-            {
-                // 생성자에 데이터 세팅하기
-
-                /*
-                    R.drawable.ic_person_pink,
-                    R.drawable.ic_person_blue,
-                    R.drawable.ic_person_black,
-                    R.drawable.ic_person_gray
-                **/
-
-                item_participant_user = new item_participant_user(GET_MY_NAME, GET_IS_HOST, false, imageIds);
-                itemParticipant.add(item_participant_user); // 생성자에 세팅한 값으로 List 추가
-
-
-            }
-         }
-
-        // 구분선 세팅
-        Participant_list.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
-        Participant_list.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.HORIZONTAL));
-
-        adapterWaitingRoom = new adapterWaitingRoom(mContext, itemParticipant);
-        Participant_list.setAdapter(adapterWaitingRoom);
-    }
-
-    // todo: 레디 버튼 제어
-    int readyCount;
-    private void ReadyTask()
-    {
-        button_waiting_ready.setOnClickListener(new View.OnClickListener()
-        {
-            @Override
-            public void onClick(View v)
-            {
-                if (GET_IS_HOST)
-                {
-                    // 참가자가 두 명일 경우
-                    if (itemParticipant.size() == 1)
-                    {
-                        Toast.makeText(mContext, "아직 준비되지 않았습니다", Toast.LENGTH_SHORT).show();
-                        return;
-                    }
-
-                    else if (itemParticipant.size() == 2)
-                    {
-                        if (1 > readyCount)
-                        {
-                            Toast.makeText(mContext, "아직 준비되지 않았습니다", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                    }
-
-                    // 참가자가 세 명일 경우
-                    else if (itemParticipant.size() == 3)
-                    {
-                        if (2 > readyCount)
-                        {
-                            Toast.makeText(mContext, "아직 준비되지 않았습니다", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                    }
-
-                    // 참가자가 네 명일 경우
-                    else if (itemParticipant.size() == 4)
-                    {
-                        if (3 > readyCount)
-                        {
-                            Toast.makeText(mContext, "아직 준비되지 않았습니다", Toast.LENGTH_SHORT).show();
-                            return;
-                        }
-                    }
-
-                    // todo: 참가자들에게 게임 시작 알림 전달하기
-                    attemptSend(GET_MY_NAME, GET_ROOM_INDEX, "Game", "Start");
-
-                    // 게임 시작 액티비티로 이동
-                    Intent intent = new Intent(mContext, GameStart.class);
-                    startActivity(intent);
-
-                    isGameStart = true;
-                }
-
-                Log.e(TAG, "onCreate: button_waiting_ready: 클릭함");
-                if (isReady)
-                {
-                    // todo: ready off
-                    for (int i = 0; i < itemParticipant.size(); i++)
-                    {
-                        if (itemParticipant.get(i).getUserName().equals(GET_MY_NAME))
-                        {
-                            Log.e(TAG, "onClick: ready off: Me");
-
-                            itemParticipant.get(i).setReady(false);
-                            adapterWaitingRoom.notifyDataSetChanged();
-                            Participant_list.setAdapter(adapterWaitingRoom);
-                            button_waiting_ready.setText("준 비");
-                            Log.e(TAG, "onClick: itemParticipant: [" + i + "]" + itemParticipant.get(i).isReady);
-
-                            readyCount --;
-
-                            // '준비중이 아님' 메시지를 유저들에게 전달하기
-                            attemptSend(GET_MY_NAME, GET_ROOM_INDEX, "Ready", "Off");
-                            isReady = false;
-                        }
-                    }
-                }
-
-                // todo: ready on
-                else
-                {
-                    for (int i = 0; i < itemParticipant.size(); i++)
-                    {
-                        if (itemParticipant.get(i).getUserName().equals(GET_MY_NAME))
-                        {
-                            Log.e(TAG, "onClick: ready on: Me");
-                            itemParticipant.get(i).setReady(true);
-                            adapterWaitingRoom.notifyDataSetChanged();
-                            Participant_list.setAdapter(adapterWaitingRoom);
-                            button_waiting_ready.setText("준 비 취 소");
-                            Log.e(TAG, "onClick: itemParticipant: [" + i + "]" + itemParticipant.get(i).isReady);
-
-                            readyCount ++;
-
-                            // '준비중' 메시지를 유저들에게 전달하기
-                            attemptSend(GET_MY_NAME, GET_ROOM_INDEX, "Ready", "On");
-                            isReady = true;
-                        }
-                    }
-                }
-            }
-        });
-    }
-
     // todo: 수신받은 메시지 가공해서 사용하기
     String ioMessage[];
     String getUserList[];
@@ -430,6 +272,7 @@ public class Activity_Waiting_Room extends AppCompatActivity
             {
                 if (ioMessage[3].equals("Start"))
                 {
+                    socket.disconnect();
                     Intent intent = new Intent(mContext, GameStart.class);
                     startActivity(intent);
                 }
@@ -497,6 +340,169 @@ public class Activity_Waiting_Room extends AppCompatActivity
         }
     }
 
+    @Override
+    public void onWindowFocusChanged(boolean hasFocus)
+    {
+
+        // 유저를 표시할 공간 크기 구하기 (높이만)
+        user_space = findViewById(R.id.user_space);
+        GET_HEIGHT_USER_SPACE = user_space.getHeight();
+        Log.e(TAG, "onCreate: GET_HEIGHT_USER_SPACE: " + GET_HEIGHT_USER_SPACE);
+        Log.e(TAG, "onCreate: GET_HEIGHT_USER_SPACE / 2: " + GET_HEIGHT_USER_SPACE / 2);
+
+        // 리사이클러뷰 세팅
+        Participant_list = findViewById(R.id.waiting_room_participant);
+        Participant_list.setHasFixedSize(true);
+        Participant_list.setLayoutManager(new GridLayoutManager(mContext, 2));
+
+        itemParticipant = new ArrayList<item_participant_user>();
+
+        // todo: 방장 먼저 리스트에 추가하기
+        if (GET_IS_HOST)
+        {
+            if (isGameStart || isGameOut)
+            {
+                Log.e(TAG, "onWindowFocusChanged: 게임 시작" );
+            }
+
+            else
+            {
+                // 생성자에 데이터 세팅하기
+
+                /*
+                    R.drawable.ic_person_pink,
+                    R.drawable.ic_person_blue,
+                    R.drawable.ic_person_black,
+                    R.drawable.ic_person_gray
+                **/
+
+                item_participant_user = new item_participant_user(GET_MY_NAME, GET_IS_HOST, false, imageIds);
+                itemParticipant.add(item_participant_user); // 생성자에 세팅한 값으로 List 추가
+
+
+            }
+         }
+
+        // 구분선 세팅
+        Participant_list.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.VERTICAL));
+        Participant_list.addItemDecoration(new DividerItemDecoration(mContext, DividerItemDecoration.HORIZONTAL));
+
+        adapterWaitingRoom = new adapterWaitingRoom(mContext, itemParticipant);
+        Participant_list.setAdapter(adapterWaitingRoom);
+    }
+
+    // todo: 레디 버튼 제어
+    int readyCount;
+    private void ReadyTask()
+    {
+        button_waiting_ready.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                if (GET_IS_HOST)
+                {
+                    // 참가자가 한 명일 경우
+                    if (itemParticipant.size() == 1)
+                    {
+                        Toast.makeText(mContext, "아직 준비되지 않았습니다", Toast.LENGTH_SHORT).show();
+                        return;
+                    }
+
+                    // 참가자가 두 명일 경우
+                    else if (itemParticipant.size() == 2)
+                    {
+                        if (1 > readyCount)
+                        {
+                            Toast.makeText(mContext, "아직 준비되지 않았습니다", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    }
+
+                    // 참가자가 세 명일 경우
+                    else if (itemParticipant.size() == 3)
+                    {
+                        if (2 > readyCount)
+                        {
+                            Toast.makeText(mContext, "아직 준비되지 않았습니다", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    }
+
+                    // 참가자가 네 명일 경우
+                    else if (itemParticipant.size() == 4)
+                    {
+                        if (3 > readyCount)
+                        {
+                            Toast.makeText(mContext, "아직 준비되지 않았습니다", Toast.LENGTH_SHORT).show();
+                            return;
+                        }
+                    }
+
+                    // todo: 참가자들에게 게임 시작 알림 전달하기
+                    attemptSend(GET_MY_NAME, GET_ROOM_INDEX, "Game", "Start");
+
+                    // 소켓 연결 해제
+                    socket.disconnect();
+
+                    // 게임 시작 액티비티로 이동
+                    Intent intent = new Intent(mContext, GameStart.class);
+                    startActivity(intent);
+
+                    isGameStart = true;
+                }
+
+                Log.e(TAG, "onCreate: button_waiting_ready: 클릭함");
+                if (isReady)
+                {
+                    // todo: ready off
+                    for (int i = 0; i < itemParticipant.size(); i++)
+                    {
+                        if (itemParticipant.get(i).getUserName().equals(GET_MY_NAME))
+                        {
+                            Log.e(TAG, "onClick: ready off: Me");
+
+                            itemParticipant.get(i).setReady(false);
+                            adapterWaitingRoom.notifyDataSetChanged();
+                            Participant_list.setAdapter(adapterWaitingRoom);
+                            button_waiting_ready.setText("준 비");
+                            Log.e(TAG, "onClick: itemParticipant: [" + i + "]" + itemParticipant.get(i).isReady);
+
+                            readyCount --;
+
+                            // '준비중이 아님' 메시지를 유저들에게 전달하기
+                            attemptSend(GET_MY_NAME, GET_ROOM_INDEX, "Ready", "Off");
+                            isReady = false;
+                        }
+                    }
+                }
+
+                // todo: ready on
+                else
+                {
+                    for (int i = 0; i < itemParticipant.size(); i++)
+                    {
+                        if (itemParticipant.get(i).getUserName().equals(GET_MY_NAME))
+                        {
+                            Log.e(TAG, "onClick: ready on: Me");
+                            itemParticipant.get(i).setReady(true);
+                            adapterWaitingRoom.notifyDataSetChanged();
+                            Participant_list.setAdapter(adapterWaitingRoom);
+                            button_waiting_ready.setText("준 비 취 소");
+                            Log.e(TAG, "onClick: itemParticipant: [" + i + "]" + itemParticipant.get(i).isReady);
+
+                            readyCount ++;
+
+                            // '준비중' 메시지를 유저들에게 전달하기
+                            attemptSend(GET_MY_NAME, GET_ROOM_INDEX, "Ready", "On");
+                            isReady = true;
+                        }
+                    }
+                }
+            }
+        });
+    }
+
     // todo: 메시지 전송
     private void attemptSend(String sendUser, String currentRoomNum, String messageType, String message)
     {
@@ -518,8 +524,8 @@ public class Activity_Waiting_Room extends AppCompatActivity
         super.onDestroy();
 
         // 소켓 연결 해제
-        socket.disconnect();
-//        socket.off("new message", onNewMessage);
+//        socket.disconnect();
+//        socket.off("new message", );
 
         // todo: 방 퇴장하기 (mysql)
         disconnectRoom(GET_ROOM_INDEX, GET_MY_JOIN_INDEX);

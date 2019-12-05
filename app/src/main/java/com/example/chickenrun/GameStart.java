@@ -42,6 +42,7 @@ import static android.speech.tts.TextToSpeech.ERROR;
 * */
 public class GameStart extends AppCompatActivity {
 
+    private String TAG = "GameStart";
     Socket socket;
 
     Button button;
@@ -151,7 +152,7 @@ public class GameStart extends AppCompatActivity {
 //            @Override
 //            public void call(Object... args) {
 //                //                // 서버에 데이터 전송
-//                socket.emit("message_from_client", "Hi~ 나는 안드로이드야.");
+////                socket.emit("message_from_client", "Hi~ 나는 안드로이드야.");
 //            }
 //        }).on("message_from_server", new Emitter.Listener() {
 //            @Override
@@ -161,7 +162,9 @@ public class GameStart extends AppCompatActivity {
 //                runOnUiThread(new Runnable() {
 //                    @Override
 //                    public void run() {
-//                        textView.setText(args[0].toString());
+////                        textView.setText(args[0].toString());
+////                        Log.e(TAG, "run: gameStart: 소켓 새로 연결됨?" );
+//                        Log.e(TAG, "run: args[0].toString(): " + args[0].toString() );
 //                    }
 //                });
 //            }
