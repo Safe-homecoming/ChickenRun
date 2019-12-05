@@ -132,11 +132,11 @@ public class Activity_Lobby extends AppCompatActivity
                     public void onClick(View v)
                     {
                         // 방 제목 입력받기
-                        String roomTitle = dialog_edit_text_room_name.getText().toString();
-                        Log.e(TAG, "onClick: roomTitle: " + roomTitle);
+                        GET_ROOM_NAME = dialog_edit_text_room_name.getText().toString();
+                        Log.e(TAG, "onClick: roomTitle: " + GET_ROOM_NAME);
 
                         // todo: 방 생성 (mysql)
-                        createRoom(roomTitle);
+                        createRoom(GET_ROOM_NAME);
                         dialog.dismiss();
                     }
                 });

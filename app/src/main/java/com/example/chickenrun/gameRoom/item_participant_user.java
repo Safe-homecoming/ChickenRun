@@ -5,12 +5,14 @@ public class item_participant_user
     String userName;
     boolean isHost;
     boolean isReady;
+    int[] userIcon;
 
-    public item_participant_user(String userName, boolean isHost, boolean isReady)
+    public item_participant_user(String userName, boolean isHost, boolean isReady, int[] userIcon)
     {
         this.userName = userName;
         this.isHost = isHost;
         this.isReady = isReady;
+        this.userIcon = userIcon;
     }
 
     public String getUserName()
@@ -41,5 +43,15 @@ public class item_participant_user
     public void setReady(boolean ready)
     {
         isReady = ready;
+    }
+
+    public int[] getUserIcon()
+    {
+        return userIcon;
+    }
+
+    public void setUserIcon(int[] userIcon)
+    {
+        this.userIcon = userIcon;
     }
 }
