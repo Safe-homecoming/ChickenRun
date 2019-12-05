@@ -103,7 +103,7 @@ public class GameResult extends AppCompatActivity
 
          mMap.moveCamera(CameraUpdateFactory.newLatLng(gpsstart));
          mMap.setMyLocationEnabled(true);
-         mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
+         mMap.animateCamera(CameraUpdateFactory.zoomTo(20));
 
      }
     public void drawployline(LatLng latLng){
