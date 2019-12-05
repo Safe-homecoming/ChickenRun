@@ -1,64 +1,29 @@
 package com.example.chickenrun;
 
-import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
+
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.app.ActivityCompat;
-import androidx.core.content.ContextCompat;
-import androidx.fragment.app.FragmentActivity;
 
-import android.Manifest;
-import android.annotation.TargetApi;
-import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.content.pm.PackageManager;
+import android.content.SharedPreferences;
 import android.graphics.Color;
-import android.location.Address;
-import android.location.Geocoder;
-import android.location.Location;
-import android.location.LocationManager;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.provider.Settings;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.WindowManager;
-import android.widget.Toast;
 
-import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.GooglePlayServicesUtil;
-import com.google.android.gms.common.api.GoogleApiClient;
-import com.google.android.gms.location.FusedLocationProviderApi;
-import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
-import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.MapsInitializer;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.google.android.gms.maps.model.PolylineOptions;
-import com.google.android.material.floatingactionbutton.FloatingActionButton;
-import com.google.android.material.navigation.NavigationView;
-
-import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
+import java.util.Map;
+
 
 public class GameResult extends AppCompatActivity
         implements
         OnMapReadyCallback, GoogleMap.OnMapClickListener, GoogleMap.OnMapLongClickListener
-
  {
 
      private GoogleMap mMap;
@@ -85,9 +50,7 @@ public class GameResult extends AppCompatActivity
         mapFragment.getMapAsync(this);
 
 
-        mMap.setMyLocationEnabled(true);
-        mMap.setOnMapClickListener(this);
-        mMap.setOnMapLongClickListener(this);
+
 
         init();
 
@@ -103,12 +66,61 @@ public class GameResult extends AppCompatActivity
          GooglePlayServicesUtil.isGooglePlayServicesAvailable(
                  GameResult.this);
 
-         // 맵 위치이동.
-         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
+//         // 맵 위치이동.
+//         mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 15));
 
          arrayPoints = new ArrayList<LatLng>();
      }
 
+
+     @Override
+     public void onMapReady(final GoogleMap googleMap) {
+
+         mMap = googleMap;
+         //gps 좌표 저장
+         SharedPreferences sharedPreferences = getSharedPreferences("gpsinfo",MODE_PRIVATE);
+         Map<String, ?> totalValue = sharedPreferences.getAll();//쉐어드 프리퍼런스.....
+         int gpscnt = (totalValue.entrySet().size())/2; //쉐어드 프리퍼런스 개수
+         Log.i("gpscny","      "+gpscnt);
+
+         LatLng gpsstart = new LatLng(sharedPreferences.getFloat("gpslatitude0",0),
+                 sharedPreferences.getFloat("gpslongitude0",0));
+
+         for(int i=0; i< gpscnt ; i++){
+             LatLng gpsgood = new LatLng(sharedPreferences.getFloat("gpslatitude"+i,0),
+                     sharedPreferences.getFloat("gpslongitude"+i,0));
+             drawployline(gpsgood);
+         }
+
+//         LatLng SEOUL = new LatLng(37.56, 126.97);
+//         MarkerOptions markerOptions = new MarkerOptions(); //마커 객체
+//         markerOptions.position(SEOUL);
+//         markerOptions.title("서울");
+//         markerOptions.snippet("한국의 수도");
+//         mMap.setOnMapClickListener(this);
+//         mMap.setOnMapLongClickListener(this);
+//         mMap.addMarker(markerOptions);
+
+         mMap.moveCamera(CameraUpdateFactory.newLatLng(gpsstart));
+         mMap.setMyLocationEnabled(true);
+         mMap.animateCamera(CameraUpdateFactory.zoomTo(13));
+
+     }
+    public void drawployline(LatLng latLng){
+
+        //add marker
+        MarkerOptions marker=new MarkerOptions();
+        marker.position(latLng);
+        mMap.addMarker(marker);
+
+        // 맵셋팅
+        polylineOptions = new PolylineOptions();
+        polylineOptions.color(Color.RED);
+        polylineOptions.width(5);
+        arrayPoints.add(latLng);
+        polylineOptions.addAll(arrayPoints);
+        mMap.addPolyline(polylineOptions);
+    }
      @Override
      public void onMapClick(LatLng latLng) {
 
@@ -116,6 +128,7 @@ public class GameResult extends AppCompatActivity
          MarkerOptions marker=new MarkerOptions();
          marker.position(latLng);
          mMap.addMarker(marker);
+
 
          // 맵셋팅
          polylineOptions = new PolylineOptions();
@@ -133,8 +146,5 @@ public class GameResult extends AppCompatActivity
      }
 
 
-     @Override
-     public void onMapReady(GoogleMap googleMap) {
 
-     }
  }

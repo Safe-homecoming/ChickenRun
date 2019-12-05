@@ -10,6 +10,7 @@ import io.socket.emitter.Emitter;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
@@ -87,7 +88,7 @@ public class GameStart extends AppCompatActivity {
         setContentView(R.layout.activity_game_start);
 
 
-
+            //안드로이드 시스템에서 GPS를 통한 위치 서비스를 가져오려고함 .
          lm = (LocationManager) getSystemService(Context.LOCATION_SERVICE);
         // Lotti 애니메이션 셋팅
         // 경기 시작후 띄워주는 애니메이션
@@ -110,23 +111,27 @@ public class GameStart extends AppCompatActivity {
 
         // count 쓰레드
         //경기 시작을 알려주는 count 쓰레드
-        isThread = true;
-        thread = new Thread(){
-            public void run(){
-                while (cnt <= 4){ //
-//                    Log.i("cntcntcntcnt","      "+cnt);
-                    try{
-                        sleep(1000);
-                    }catch (InterruptedException e){
-                        e.printStackTrace();
-                        thread.interrupt();
-                    }
-                    handler.sendEmptyMessage(0);
-//                    Log.i("cntcntcntcnt222222222","      "+cnt);
-                }
-            }
-        };
-        thread.start();
+//        isThread = true;
+//        thread = new Thread(){
+//            public void run(){
+//                while (cnt <= 4){ //
+////                    Log.i("cntcntcntcnt","      "+cnt);
+//                    try{
+//                        sleep(1000);
+//                    }catch (InterruptedException e){
+//                        e.printStackTrace();
+//                        thread.interrupt();
+//                    }
+//                    handler.sendEmptyMessage(0);
+////                    Log.i("cntcntcntcnt222222222","      "+cnt);
+//                }
+//            }
+//        };
+//        thread.start();
+
+
+        timeThread = new Thread(new timeThread());
+        timeThread.start();
 
         //현재위치 가져오기
         curLocation();
@@ -238,7 +243,7 @@ public class GameStart extends AppCompatActivity {
             int hour = (msg.arg1 / 100) / 360;
             //1000이 1초 1000*60 은 1분 1000*60*10은 10분 1000*60*60은 한시간
 
-            @SuppressLint("DefaultLocale") String result = String.format("%02d:%02d:%02d:%02d", hour, min, sec, mSec);
+            String result = String.format("%02d:%02d:%02d:%02d", hour, min, sec, mSec);
             timersview.setText(result);
         }
     };
@@ -248,16 +253,26 @@ public class GameStart extends AppCompatActivity {
     public class timeThread implements Runnable {
         @Override
         public void run() {
-            int i = 0;
+             int i = 0;
 
             while (true) {
                 while (isRunning) { //일시정지를 누르면 멈춤
-                    Message msg = new Message();
+                    final Message msg = new Message();
 
                     msg.arg1 = i++;
-                    handler2.sendMessage(msg);
-
+                   // handler2.sendMessage(msg);
                     try {
+                        runOnUiThread(new Runnable() {
+                                          @Override
+                                          public void run() {
+                                              int mSec = msg.arg1 % 100;
+                                              int sec = (msg.arg1 / 100) % 60;
+                                              int min = (msg.arg1 / 100) / 60;
+                                              int hour = (msg.arg1 / 100) / 360;
+                                              String result = String.format("%02d:%02d:%02d", min, sec, mSec);
+                                              timersview.setText(result);
+                                          }
+                                      });
                         Thread.sleep(10);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
@@ -269,9 +284,9 @@ public class GameStart extends AppCompatActivity {
                             }
                         });
                         return; // 인터럽트 받을 경우 return
-                    }
-                }
-            }
+                    } //catch 문
+                } // isRunnuing(while문)
+            }// while(true) 문
         }
     }
 
@@ -291,14 +306,25 @@ public class GameStart extends AppCompatActivity {
 
         @Override
         public void run() {
+            int i = 0;
             //출발 위치 받아오기
             final Location crntLocation = new Location("crntlocation");
             crntLocation.setLatitude(latitude);  //경도
             crntLocation.setLongitude(longitude); //위도
             float distance =0;
+
+            //gps 좌표 저장
+            SharedPreferences sharedPreferences = getSharedPreferences("gpsinfo",MODE_PRIVATE);
+            //저장을 하기위해 editor를 이용하여 값을 저장시켜준다.
+            SharedPreferences.Editor editor = sharedPreferences.edit();
+            editor.clear();
+
+            editor.putFloat("gpslatitude"+i,(float)crntLocation.getLatitude()); //출발위치 경도
+            editor.putFloat("gpslongitude"+i,(float)crntLocation.getLongitude()); //출발위치 위도
+
             Log.i("curlocation testestset","      "+crntLocation.getLatitude()+"       "+crntLocation.getLongitude());
 
-
+            editor.commit();
             while (true) {
                 while (gisRunning) { //일시정지를 누르면 멈춤
                     Message msg = new Message();
@@ -310,9 +336,14 @@ public class GameStart extends AppCompatActivity {
                     nowLocation.setLongitude(nowlongitude); //위도
                     nowLocation.setAltitude(nowaltitude); //고도
                     Log.i("nowlocation testestset","      "+nowLocation.getLatitude()+"       "+nowLocation.getLongitude());
+                    //Log.i("nowlocation testestset","      "+(float)nowLocation.getLatitude()+"       "+(float)nowLocation.getLongitude());
 
                     //  거리 계산
                     if(nowLocation.getAltitude() == 0.0 && nowLocation.getLatitude() != 0.0){
+                        i++;
+                        editor.putFloat("gpslatitude"+i,(float)nowLocation.getLatitude()); // key,//경도
+                        editor.putFloat("gpslongitude"+i,(float)nowLocation.getLongitude()); // key,//위도
+                        editor.commit();
                         distance = crntLocation.distanceTo(nowLocation);///1000; //in km
                         Log.i("Test_Log","   출발거리와 현재 위치 간 거리"+distance);
                     }
@@ -339,7 +370,8 @@ public class GameStart extends AppCompatActivity {
                         return; // 인터럽트 받을 경우 return
                     }
                 }
-            }
+            }//while문 끝
+
         }
     }
 
