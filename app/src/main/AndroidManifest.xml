@@ -2,9 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.example.chickenrun">
 
-
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="com.google.android.providers.gsf.permission.READ_GSERVICES" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+
 
 
     <application
@@ -15,17 +19,24 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBNPYttukaZUX0uEGM-SX5j0m7UXZupZi4" />
 
-        <activity android:name=".GameStart">
+        <activity android:name=".GameResult">
+
         </activity>
-        <activity android:name=".gameRoom.Activity_Waiting_Room" />
-        <activity android:name=".Lobby.Activity_Lobby" />
-        <activity android:name=".Login">
+        <activity android:name=".GameStart">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+
+        </activity>
+        <activity android:name=".gameRoom.Activity_Waiting_Room" />
+        <activity android:name=".Lobby.Activity_Lobby" />
+        <activity android:name=".Login">
 
         </activity>
         <activity android:name=".BuyChicken" />

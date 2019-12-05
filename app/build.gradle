@@ -52,10 +52,10 @@ dependencies {
     implementation group: 'io.socket', name: 'socket.io-client', version: '1.0.0'
 
 
+    implementation 'com.google.android.gms:play-services-maps:17.0.0'
+    implementation 'com.google.android.gms:play-services-location:17.0.0'
 
     /// glide
-
-
 
 
 }

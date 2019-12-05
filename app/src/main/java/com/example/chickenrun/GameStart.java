@@ -24,6 +24,7 @@ import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Chronometer;
 import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.TextView;
@@ -78,7 +79,7 @@ public class GameStart extends AppCompatActivity {
 
      LocationManager lm ;
 
-
+    Chronometer chronometer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -168,7 +169,10 @@ public class GameStart extends AppCompatActivity {
 
         lottilay = (FrameLayout)findViewById(R.id.lotti_lay);
         countview = (TextView)findViewById(R.id.countnum);
-        timersview =(TextView)findViewById(R.id.timers);
+         chronometer = (Chronometer) findViewById(R.id.timers);
+
+
+        //timersview =(TextView)findViewById(R.id.timers);
         distenceview = (TextView)findViewById(R.id.distence);
 
 //        button.setOnClickListener(new View.OnClickListener() {
@@ -211,8 +215,9 @@ public class GameStart extends AppCompatActivity {
                 animationView.playAnimation();//애니메이션 start
 
 
-                timeThread = new Thread(new timeThread());
-                timeThread.start();
+                chronometer.start();
+//                timeThread = new Thread(new timeThread());
+//                timeThread.start();
                 gpsThread = new Thread(new gpsThread());
                 gpsThread.start();
 
@@ -229,7 +234,7 @@ public class GameStart extends AppCompatActivity {
             int mSec = msg.arg1 % 100;
             int sec = (msg.arg1 / 100) % 60;
             int min = (msg.arg1 / 100) / 60;
-            int hour = (msg.arg1 / 100) / 360;
+            int hour = (msg.arg1 % 3600 ) % 24;
             //1000이 1초 1000*60 은 1분 1000*60*10은 10분 1000*60*60은 한시간
 
             @SuppressLint("DefaultLocale") String result = String.format("%02d:%02d:%02d:%02d", hour, min, sec, mSec);
