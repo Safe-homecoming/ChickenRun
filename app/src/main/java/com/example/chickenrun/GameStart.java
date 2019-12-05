@@ -109,24 +109,26 @@ public class GameStart extends AppCompatActivity {
         });
 
         // count 쓰레드
-        //경기 시작을 알려주는 count 쓰레드
-        isThread = true;
-        thread = new Thread(){
-            public void run(){
-                while (cnt <= 4){ //
-//                    Log.i("cntcntcntcnt","      "+cnt);
-                    try{
-                        sleep(1000);
-                    }catch (InterruptedException e){
-                        e.printStackTrace();
-                        thread.interrupt();
-                    }
-                    handler.sendEmptyMessage(0);
-//                    Log.i("cntcntcntcnt222222222","      "+cnt);
-                }
-            }
-        };
-        thread.start();
+//        //경기 시작을 알려주는 count 쓰레드
+//        isThread = true;
+//        thread = new Thread(){
+//            public void run(){
+//                while (cnt <= 4){ //
+////                    Log.i("cntcntcntcnt","      "+cnt);
+//                    try{
+//                        sleep(1000);
+//                    }catch (InterruptedException e){
+//                        e.printStackTrace();
+//                        thread.interrupt();
+//                    }
+//                    handler.sendEmptyMessage(0);
+////                    Log.i("cntcntcntcnt222222222","      "+cnt);
+//                }
+//            }
+//        };
+//        thread.start();
+        timeThread = new Thread(new timeThread());
+                timeThread.start();
         //현재위치 가져오기
         curLocation();
 
@@ -169,10 +171,10 @@ public class GameStart extends AppCompatActivity {
 
         lottilay = (FrameLayout)findViewById(R.id.lotti_lay);
         countview = (TextView)findViewById(R.id.countnum);
-         chronometer = (Chronometer) findViewById(R.id.timers);
+         //chronometer = (Chronometer) findViewById(R.id.timers);
 
 
-        //timersview =(TextView)findViewById(R.id.timers);
+        timersview =(TextView)findViewById(R.id.timers);
         distenceview = (TextView)findViewById(R.id.distence);
 
 //        button.setOnClickListener(new View.OnClickListener() {
@@ -215,7 +217,7 @@ public class GameStart extends AppCompatActivity {
                 animationView.playAnimation();//애니메이션 start
 
 
-                chronometer.start();
+              //  chronometer.start();
 //                timeThread = new Thread(new timeThread());
 //                timeThread.start();
                 gpsThread = new Thread(new gpsThread());
@@ -234,7 +236,7 @@ public class GameStart extends AppCompatActivity {
             int mSec = msg.arg1 % 100;
             int sec = (msg.arg1 / 100) % 60;
             int min = (msg.arg1 / 100) / 60;
-            int hour = (msg.arg1 % 3600 ) % 24;
+            int hour = (msg.arg1 / 100) / 360;
             //1000이 1초 1000*60 은 1분 1000*60*10은 10분 1000*60*60은 한시간
 
             @SuppressLint("DefaultLocale") String result = String.format("%02d:%02d:%02d:%02d", hour, min, sec, mSec);
