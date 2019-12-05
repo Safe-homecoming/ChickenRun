@@ -79,7 +79,7 @@ public class GameStart extends AppCompatActivity {
 
      LocationManager lm ;
 
-    Chronometer chronometer;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -109,26 +109,25 @@ public class GameStart extends AppCompatActivity {
         });
 
         // count 쓰레드
-//        //경기 시작을 알려주는 count 쓰레드
-//        isThread = true;
-//        thread = new Thread(){
-//            public void run(){
-//                while (cnt <= 4){ //
-////                    Log.i("cntcntcntcnt","      "+cnt);
-//                    try{
-//                        sleep(1000);
-//                    }catch (InterruptedException e){
-//                        e.printStackTrace();
-//                        thread.interrupt();
-//                    }
-//                    handler.sendEmptyMessage(0);
-////                    Log.i("cntcntcntcnt222222222","      "+cnt);
-//                }
-//            }
-//        };
-//        thread.start();
-        timeThread = new Thread(new timeThread());
-                timeThread.start();
+        //경기 시작을 알려주는 count 쓰레드
+        isThread = true;
+        thread = new Thread(){
+            public void run(){
+                while (cnt <= 4){ //
+//                    Log.i("cntcntcntcnt","      "+cnt);
+                    try{
+                        sleep(1000);
+                    }catch (InterruptedException e){
+                        e.printStackTrace();
+                        thread.interrupt();
+                    }
+                    handler.sendEmptyMessage(0);
+//                    Log.i("cntcntcntcnt222222222","      "+cnt);
+                }
+            }
+        };
+        thread.start();
+       
         //현재위치 가져오기
         curLocation();
 
@@ -218,8 +217,8 @@ public class GameStart extends AppCompatActivity {
 
 
               //  chronometer.start();
-//                timeThread = new Thread(new timeThread());
-//                timeThread.start();
+                timeThread = new Thread(new timeThread());
+                timeThread.start();
                 gpsThread = new Thread(new gpsThread());
                 gpsThread.start();
 
