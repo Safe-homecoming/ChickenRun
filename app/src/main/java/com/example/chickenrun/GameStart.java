@@ -411,8 +411,8 @@ public class GameStart extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        timeThread.interrupt();
-        gpsThread.interrupt();
+        timeThread.interrupt(); // 타입 쓰래드 멈춤
+        gpsThread.interrupt();  //gps 도 멈춤.
         // TTS 객체가 남아있다면 실행을 중지하고 메모리에서 제거한다.
         if(tts != null){
             tts.stop();
