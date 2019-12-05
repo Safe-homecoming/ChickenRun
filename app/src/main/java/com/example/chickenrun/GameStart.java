@@ -127,7 +127,7 @@ public class GameStart extends AppCompatActivity {
             }
         };
         thread.start();
-       
+
         //현재위치 가져오기
         curLocation();
 
