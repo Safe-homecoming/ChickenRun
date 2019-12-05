@@ -128,7 +128,7 @@ public class GameStart extends AppCompatActivity {
             }
         };
         thread.start();
-       
+
         //현재위치 가져오기
         curLocation();
 
@@ -315,7 +315,7 @@ public class GameStart extends AppCompatActivity {
                     Log.i("nowlocation testestset","      "+nowLocation.getLatitude()+"       "+nowLocation.getLongitude());
 
                     //  거리 계산
-                    if(nowaltitude ==0.0){
+                    if(nowLocation.getAltitude() == 0.0 && nowLocation.getLatitude() != 0.0){
                         distance = crntLocation.distanceTo(nowLocation);///1000; //in km
                         Log.i("Test_Log","   출발거리와 현재 위치 간 거리"+distance);
                     }
@@ -414,8 +414,8 @@ public class GameStart extends AppCompatActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        timeThread.interrupt();
-        gpsThread.interrupt();
+        timeThread.interrupt(); // 타입 쓰래드 멈춤
+        gpsThread.interrupt();  //gps 도 멈춤.
         // TTS 객체가 남아있다면 실행을 중지하고 메모리에서 제거한다.
         if(tts != null){
             tts.stop();
