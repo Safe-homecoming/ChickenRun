@@ -65,6 +65,7 @@ public class Activity_Waiting_Room extends AppCompatActivity
 
     private FrameLayout user_space;
     public static int GET_HEIGHT_USER_SPACE;
+    public static List<item_participant_user> GET_LANK_LIST;
 
     private int[] imageIds=
             {
@@ -378,8 +379,6 @@ public class Activity_Waiting_Room extends AppCompatActivity
 
                 item_participant_user = new item_participant_user(GET_MY_NAME, GET_IS_HOST, false, imageIds);
                 itemParticipant.add(item_participant_user); // 생성자에 세팅한 값으로 List 추가
-
-
             }
          }
 
@@ -439,17 +438,19 @@ public class Activity_Waiting_Room extends AppCompatActivity
                         }
                     }
 
+
+                    // 게임 시작 액티비티로 이동
+                    Intent intent = new Intent(mContext, GameStart.class);
+
                     // todo: 참가자들에게 게임 시작 알림 전달하기
                     attemptSend(GET_MY_NAME, GET_ROOM_INDEX, "Game", "Start");
 
                     // 소켓 연결 해제
                     socket.disconnect();
 
-                    // 게임 시작 액티비티로 이동
-                    Intent intent = new Intent(mContext, GameStart.class);
-                    startActivity(intent);
-
                     isGameStart = true;
+
+                    startActivity(intent);
                 }
 
                 Log.e(TAG, "onCreate: button_waiting_ready: 클릭함");
