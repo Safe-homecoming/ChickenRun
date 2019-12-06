@@ -33,11 +33,13 @@ import android.widget.Button;
 import android.widget.Chronometer;
 import android.widget.EditText;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.bumptech.glide.Glide;
 
 import java.util.List;
 import java.util.Locale;
@@ -59,11 +61,9 @@ public class GameStart extends AppCompatActivity
     private String TAG = "GameStart";
     Socket socket;
 
-    Button button;
-    EditText editText;
     TextView countview, timersview, distenceview;
     FrameLayout lottilay;//lotti_lay
-
+    ImageView mini;
     //count thread
     Thread thread;
     boolean isThread = false;
@@ -73,10 +73,6 @@ public class GameStart extends AppCompatActivity
 
     //tts
     private TextToSpeech tts;
-
-    //경기시간 재는 thread
-    private Thread timeThread = null;
-    private Boolean isRunning = true;
 
 
     // GPS 현재위치 관련 변수
@@ -135,25 +131,6 @@ public class GameStart extends AppCompatActivity
             }
         });
 
-
-/*        isThread = true;
-        thread = new Thread() {
-            public void run() {
-
-                while (cnt <= 4) { //
-                    Log.i("cntcntcntcnt", "      " + cnt);
-                    try {
-                        sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        thread.interrupt();
-                    }
-                    handler.sendEmptyMessage(0);
-//                    Log.i("cntcntcntcnt222222222","      "+cnt);
-                }
-            }
-        };
-        thread.start();*/
 
         //현재위치 가져오기
         curLocation();
@@ -328,15 +305,17 @@ public class GameStart extends AppCompatActivity
 
                     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
                     // 타이머 시작!
+                    cnt =5;
                     isThread = true;
                     thread = new Thread()
                     {
                         public void run()
                         {
 
-                            while (cnt <= 4)
+                           // while (cnt <= 4)
+                            for(int i = cnt; i >= -1; i--)
                             { //
-                                Log.i("cntcntcntcnt", "      " + cnt);
+                                Log.i("cntcntcntcnt", "      " + i);
                                 try
                                 {
                                     sleep(1000);
@@ -345,8 +324,7 @@ public class GameStart extends AppCompatActivity
                                     e.printStackTrace();
                                     thread.interrupt();
                                 }
-                                handler.sendEmptyMessage(0);
-//                    Log.i("cntcntcntcnt222222222","      "+cnt);
+                                handler.sendEmptyMessage(i);
                             }
                         }
                     };
@@ -392,35 +370,39 @@ public class GameStart extends AppCompatActivity
         public void handleMessage(Message msg)
         {
             // super.handleMessage(msg);
-            cnt++;
-            if (cnt <= 3)
+
+            if (msg.what != 0 && msg.what != -1) //5,4,3,2,1
             {
-                countview.setText("" + cnt);
+                countview.setText("" + msg.what);
                 tts.setPitch(1f);         // 음성 톤을 0.5배 내려준다.
                 tts.setSpeechRate(1.0f);    // 읽는 속도는 기본 설정
                 tts.speak(countview.getText().toString(), TextToSpeech.QUEUE_FLUSH, null);
-//                Log.i("cntcntcntcnt4444","      "+cnt);
-            } else if (cnt == 4)
+               Log.i("cntcntcntcnt4444","      "+msg.what);
+                animationView.setVisibility(View.INVISIBLE);
+              //  Glide.with(GameStart.this).load(R.raw.start).into(mini);
+            } else if (msg.what == 0)
             {
                 countview.setTextSize(TypedValue.COMPLEX_UNIT_SP, 100);
                 countview.setText("START");
                 tts.setPitch(1f);         // 음성 톤을 0.5배 내려준다.
                 tts.setSpeechRate(1.0f);    // 읽는 속도는 기본 설정
                 tts.speak(countview.getText().toString(), TextToSpeech.QUEUE_FLUSH, null);
-//                Log.i("cntcntcntcnt5555","      "+cnt);
-            } else if (cnt == 5)
+                Log.i("cntcntcntcnt5555","      "+msg.what);
+               // totalthread();
+            }
+            else if (msg.what == -1)
             {
-//                Log.i("cntcntcntcnt6","      "+cnt);
+                Log.i("cntcntcntcnt6","      "+msg.what);
                 countview.setVisibility(View.INVISIBLE);
                 animationView.playAnimation();//애니메이션 start
 
-
-              //  chronometer.start();
-//                timeThread = new Thread(new timeThread());
-//                timeThread.start();
+                //타임 쓰레드
+                //스탑워치 형식으로 사용자의 게임시간을 측정한다.
                 handler4 = new Handler() ;
-                StartTime = SystemClock.uptimeMillis();
+                StartTime = SystemClock.uptimeMillis();// 시스템 시간을 가져온다.
                 handler4.postDelayed(runnable, 0);
+                //gps 쓰레드
+                //위도 경도를 실시간으로 가져온다
                 gpsThread = new Thread(new gpsThread());
                 gpsThread.start();
 
@@ -429,6 +411,9 @@ public class GameStart extends AppCompatActivity
         }
     };
 
+
+
+    //Time  쓰레드
     public Runnable runnable = new Runnable() {
 
         public void run() {
@@ -444,7 +429,6 @@ public class GameStart extends AppCompatActivity
             Seconds = Seconds % 60;
 
             MilliSeconds = (int) (UpdateTime % 1000);
-            //timersview.setText(result);
             // timersview.setText("" + Minutes + ":"
             timersview.setText("" + String.format("%02d", Minutes) + ":"
                     + String.format("%02d", Seconds) + ":"
@@ -510,15 +494,15 @@ public class GameStart extends AppCompatActivity
                     //Log.i("nowlocation testestset","      "+(float)nowLocation.getLatitude()+"       "+(float)nowLocation.getLongitude());
 
                     //  거리 계산
-                    if (nowLocation.getAltitude() == 0.0 && nowLocation.getLatitude() != 0.0)
-                    {
+                   // if (nowLocation.getAltitude() == 0.0 && nowLocation.getLatitude() != 0.0)
+                   // {
                         i++;
                         editor.putFloat("gpslatitude" + i, (float) nowLocation.getLatitude()); // key,//경도
                         editor.putFloat("gpslongitude" + i, (float) nowLocation.getLongitude()); // key,//위도
                         editor.commit();
                         distance = crntLocation.distanceTo(nowLocation);///1000; //in km
                         Log.i("Test_Log", "   출발거리와 현재 위치 간 거리" + distance);
-                    }
+                   // }
 
 
                     // 거리( 더블형 ) 스트링으로 보냄
@@ -630,7 +614,7 @@ public class GameStart extends AppCompatActivity
     protected void onDestroy()
     {
         super.onDestroy();
-        timeThread.interrupt(); // 타입 쓰래드 멈춤
+        handler.removeCallbacks(runnable); //타임쓰레드 정지 시킴
         gpsThread.interrupt();  //gps 도 멈춤.
         // TTS 객체가 남아있다면 실행을 중지하고 메모리에서 제거한다.
         if (tts != null)

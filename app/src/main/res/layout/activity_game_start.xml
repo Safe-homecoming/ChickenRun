@@ -29,6 +29,11 @@
                 android:textSize="200sp"
                 android:gravity="center_vertical|center_horizontal"
                 android:fontFamily="@font/righteous_regular" />
+            <ImageView
+                android:id="@+id/minione"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                />
         </FrameLayout>
 
     <LinearLayout
