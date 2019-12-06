@@ -9,7 +9,6 @@ import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 
 import android.Manifest;
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
@@ -28,19 +27,12 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
-import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.Chronometer;
-import android.widget.EditText;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
 import com.example.chickenrun.gameRoom.item_lank_list;
-import com.bumptech.glide.Glide;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -52,7 +44,6 @@ import static android.speech.tts.TextToSpeech.ERROR;
 import static com.example.chickenrun.Lobby.Activity_Lobby.GET_IS_HOST;
 import static com.example.chickenrun.Lobby.Activity_Lobby.GET_MY_NAME;
 import static com.example.chickenrun.Lobby.Activity_Lobby.GET_ROOM_INDEX;
-import static com.example.chickenrun.gameRoom.adapterWaitingRoom.itemParticipant;
 
 /*
  * 사용자들이 게임을 시작하기 위한 화면, 시작후 화면
@@ -188,9 +179,55 @@ public class GameStart extends AppCompatActivity
                     public void run()
                     {
                         Log.e(TAG, "run: self: " + args[0].toString());
+/*
+                        if (args[0].toString().equals("hello, world"))
+                        {
+                            Log.e(TAG, "getSocketMessage: message: " + args[0].toString());
+                        } else
+                        {*/
+                            ioMessage = args[0].toString().split(", ");
 
-                        // todo: 돌려받은 메시지 가공해서 사용하기 (성훈)
-                        getSocketMessage(args[0].toString());
+                            Log.e(TAG, "run: self:: 메시지 보낸 유저  : " + ioMessage[0]);
+                            Log.e(TAG, "run: self:: 방 번호           : " + ioMessage[1]);
+                            Log.e(TAG, "run: self:: 타입              : " + ioMessage[2]);
+                            Log.e(TAG, "run: self:: 내용              : " + ioMessage[3]);
+
+                            if (ioMessage[2].equals("GameProgressSignal"))
+                            {
+                                if (ioMessage[3].equals("countStart"))
+                                {
+                                    Log.e(TAG, "run: self: 게임 시작 카운트다운 시작");
+
+                                    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+                                    // 타이머 시작!
+                                    isThread = true;
+                                    thread = new Thread()
+                                    {
+                                        public void run()
+                                        {
+                                            // while (cnt <= 4)
+                                            for (int i = cnt; i >= -1; i--)
+                                            { //
+                                                Log.i("cntcntcntcnt", "      " + i);
+                                                try
+                                                {
+                                                    sleep(1000);
+                                                } catch (InterruptedException e)
+                                                {
+                                                    e.printStackTrace();
+                                                    thread.interrupt();
+                                                }
+                                                handler.sendEmptyMessage(i);
+                                            }
+                                        }
+                                    };
+                                    thread.start();
+                                }
+                            }
+
+//                        }
+//                        // todo: 돌려받은 메시지 가공해서 사용하기 (성훈)
+//                        getSocketMessage(args[0].toString());
                     }
                 });
             }
@@ -214,8 +251,8 @@ public class GameStart extends AppCompatActivity
             // 3. 방장과 참가자들 모두 신호 받고나서 카운트다운 시작하기
 
             // 타이머 사용 용도 설정
-            timerType = "gameStart"; // 'request' == 6 초 후에 안심이 조회 시작. 로딩 느낌 나게끔 만들기
-            TIMEOUT = 3000; // 타이머 종료할 시간 2초로 설정
+            timerType = "gameStart";
+            TIMEOUT = 3000; // 타이머 진행할 시간 3초로 설정
             tempTask(); // 타이머 시작
         }
 
@@ -233,46 +270,61 @@ public class GameStart extends AppCompatActivity
                  * 1. 1등한 유저가 자신을 순위표 arrayList에 담기
                  * 2. 자신을 제외한 참가자들에게 카운트다운 시작 신호 전달하기
                  */
-
                 attemptSend(GET_MY_NAME, GET_ROOM_INDEX, "GameProgressSignal", "endCountStart");
 
-                // 순위표에 자신의 이름, 기록 저장하기
-                itemLankLists = new ArrayList<>();
+                // 1등 한 유저만 순위표에 자신의 이름, 기록 저장하고 GameResult 화면으로 이동하기
+                LIST_LANK = new ArrayList<>();
                 item_lank_lists = new item_lank_list(GET_MY_NAME, lastTime);
 
-                itemLankLists.add(item_lank_lists);
+                LIST_LANK.add(item_lank_lists);
 
-                for (int i = 0; i < itemLankLists.size(); i++)
+                for (int i = 0; i < LIST_LANK.size(); i++)
                 {
-                    Log.e(TAG, "onClick: UserName   : " + itemLankLists.get(i).getUserName() );
-                    Log.e(TAG, "onClick: RunTime    : " + itemLankLists.get(i).getRunTime() );
+                    Log.e(TAG, "onClick: UserName   : " + i + "등: "+ LIST_LANK.get(i).getUserName() );
+                    Log.e(TAG, "onClick: RunTime    : 기록: " + LIST_LANK.get(i).getRunTime() );
                 }
 
-/*                for (int i = 0; i < itemLankLists.size(); i++)
-                {
-                    Log.e(TAG, "getSocketMessage: itemLankLists: " + itemLankLists.get(i).getUserName());
-                    if (TextUtils.isEmpty(lankList))
-                    {
-                        lankList = itemLankLists.get(i).getUserName() + "_" + itemLankLists.get(i).getRunTime();
-                    } else
-                    {
-                        lankList = lankList + " / " + itemLankLists.get(i).getUserName() + "_" + itemLankLists.get(i).getRunTime();
-                    }
-                }*/
+                // todo: 게임 결과 화면으로 이동
+                startActivity_GameResult();
+            }
+        });
+
+        // todo: (테스트) 1이외의 참가자가 결승 지점에 도달, 방장에게 도착 알림 전송
+        distenceview.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+                // 방장에게 도착 알림 전송
+                attemptSend(GET_MY_NAME, GET_ROOM_INDEX, "GameProgressGoalSignal", GET_MY_NAME + " / " + lastTime);
+
+                // todo: 게임 결과 화면으로 이동
+                startActivity_GameResult();
             }
         });
     }
 
+
+    // todo: 게임 결과 화면으로 이동
+    private void startActivity_GameResult()
+    {
+        // 소켓 연결 끊고 결과 화면으로 이동
+        Intent intent = new Intent(mContext, GameResult.class);
+        socket.disconnect();
+        startActivity(intent);
+        finish();
+    }
+
     private Context mContext;
     String ioMessage[];
-    String timerType;
 
+    String timerType;
     long elapsed; // 4초부터 시작
     final static long INTERVAL = 1000; // 1초 에 1씩 증가
     static long TIMEOUT; // 종료 할 시간 설정 (10000 = 10초)
     private Timer timer;
 
-    private List<item_lank_list> itemLankLists;
+    public static List<item_lank_list> LIST_LANK;
     private item_lank_list item_lank_lists;
 
     // todo: 타이머 스레드 메소드
@@ -312,7 +364,7 @@ public class GameStart extends AppCompatActivity
 
                 if (timerType.equals("gameStart"))
                 {
-                    // 3초 후 게임 시작 알림 전달
+                    // 2초 후 게임 시작 알림 전달
                     if (Integer.parseInt(text) == 2)
                     {
                         timer.cancel(); // 타이머 중단
@@ -374,35 +426,14 @@ public class GameStart extends AppCompatActivity
                     thread.start();
                 }
 
-                // itemLankLists item_lank_list
+                // LIST_LANK item_lank_list
                 if (ioMessage[3].equals("endCountStart"))
                 {
-                    // 1등 참가자를 제외한 사람들에게 알림 전달
-                    for (int i = 0; i < itemLankLists.size(); i++)
-                    {
-                        if (itemLankLists == null)
-                        {
-                            Log.e(TAG, "getSocketMessage: 1등 참가자는 알림을 받지 않습니다." );
-                        }
-                        else
-                        {
-                            if (itemLankLists.get(i).getUserName().equals(GET_MY_NAME))
-                            {
-                                Log.e(TAG, "getSocketMessage: 1등 참가자는 알림을 받지 않습니다." );
-                            }
-                            else
-                            {
-                                Log.e(TAG, "getSocketMessage: 1등 참가자가 결정 되었습니다. 10초 카운트 다운을 시작합니다.");
-                            }
-                        }
-                    }
-                }
-            }
+                    // 1등 참가자를 제외한 모든 참가자들에게 알림 전달
+                    Log.e(TAG, "getSocketMessage: 1등 참가자가 결정 되었습니다. 10초 카운트 다운을 시작합니다.");
 
-            // todo: 카운트다운 도중 골인 지점에 도착하면 1등 유저에게 자신의 이름 전달하기
-            if (ioMessage[2].equals("GameProgressGoalSignal"))
-            {
-                // attemptSend(GET_MY_NAME, GET_ROOM_INDEX, "GameProgressGoalSignal", GET_MY_NAME);
+                    // 카운트다운 시작
+                }
             }
         }
     }

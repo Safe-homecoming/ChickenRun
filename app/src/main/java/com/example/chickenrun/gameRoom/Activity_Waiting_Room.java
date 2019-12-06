@@ -402,6 +402,7 @@ public class Activity_Waiting_Room extends AppCompatActivity
                 if (GET_IS_HOST)
                 {
                     // 참가자가 한 명일 경우
+/*
                     if (itemParticipant.size() == 1)
                     {
                         Toast.makeText(mContext, "아직 준비되지 않았습니다", Toast.LENGTH_SHORT).show();
@@ -437,6 +438,7 @@ public class Activity_Waiting_Room extends AppCompatActivity
                             return;
                         }
                     }
+*/
 
 
                     // 게임 시작 액티비티로 이동
