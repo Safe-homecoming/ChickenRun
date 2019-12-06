@@ -17,6 +17,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity android:name=".wewefwe"></activity>
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"
@@ -26,13 +27,8 @@
             android:name="org.apache.http.legacy"
             android:required="false" />
 
-        <activity android:name=".GameResult">
-
-
-        </activity>
-        <activity android:name=".GameStart">
-
-        </activity>
+        <activity android:name=".GameResult" />
+        <activity android:name=".GameStart" />
         <activity android:name=".gameRoom.Activity_Waiting_Room" />
         <activity android:name=".Lobby.Activity_Lobby" />
         <activity android:name=".Login">
@@ -41,7 +37,6 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-
         </activity>
         <activity android:name=".BuyChicken" />
         <activity android:name=".MainMenu" />

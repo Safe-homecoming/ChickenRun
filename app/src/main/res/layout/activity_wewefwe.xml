@@ -1,0 +1,106 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".wewefwe">
+<!--        <TextView-->
+<!--        android:id="@+id/tvTitle"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="Step Detector Sensor"-->
+<!--        android:layout_marginTop="50dp"-->
+<!--        android:textSize="30dp"-->
+<!--        app:layout_constraintLeft_toLeftOf="parent"-->
+<!--        app:layout_constraintRight_toRightOf="parent"-->
+<!--        app:layout_constraintTop_toTopOf="parent" />-->
+<!--     -->
+<!--        <TextView-->
+<!--        android:id="@+id/tvGpsEnable"-->
+<!--        android:layout_width="wrap_content"-->
+<!--        android:layout_height="wrap_content"-->
+<!--        android:text="GPS Enable :"-->
+<!--        app:layout_constraintTop_toBottomOf="@+id/tvTitle"-->
+<!--        app:layout_constraintLeft_toLeftOf="parent"-->
+<!--        app:layout_constraintRight_toRightOf="parent"-->
+<!--        android:textSize="25dp"-->
+<!--    />-->
+<!--     -->
+<!--        <TextView-->
+<!--            android:id="@+id/tvStepDetector"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Step Detect : 0"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/tvGpsEnable"-->
+<!--            app:layout_constraintLeft_toLeftOf="parent"-->
+<!--            app:layout_constraintRight_toRightOf="parent"-->
+<!--            android:textSize="25dp"-->
+<!--            />-->
+<!--     -->
+<!--        <TextView-->
+<!--            android:id="@+id/tvGpsLatitude"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Start Latitude : "-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/tvStepDetector"-->
+<!--            android:textSize="20dp"-->
+<!--            />-->
+<!--        <TextView-->
+<!--            android:id="@+id/tvGpsLongitude"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Start Longitude : "-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/tvGpsLatitude"-->
+<!--            android:textSize="20dp"-->
+<!--            />-->
+<!--        <TextView-->
+<!--            android:id="@+id/tvEndLatitude"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="End Latitude : "-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/tvGpsLongitude"-->
+<!--            android:textSize="20dp"-->
+<!--            />-->
+<!--        <TextView-->
+<!--            android:id="@+id/tvEndLongitude"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="End Longitude : "-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/tvEndLatitude"-->
+<!--            android:textSize="20dp"-->
+<!--            />-->
+<!--        <TextView-->
+<!--            android:id="@+id/tvTimeDif"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="시간 간격 :"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/tvEndLongitude"-->
+<!--            android:textSize="25dp"-->
+<!--            />-->
+<!--        <TextView-->
+<!--            android:id="@+id/tvDistDif"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="거리 간격 :"-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/tvTimeDif"-->
+<!--            android:textSize="25dp"-->
+<!--            />-->
+<!--        <TextView-->
+<!--            android:id="@+id/tvNowLatitude"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Now Latitude : "-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/tvDistDif"-->
+<!--            android:textSize="20dp"-->
+<!--            />-->
+<!--        <TextView-->
+<!--            android:id="@+id/tvNowLongitude"-->
+<!--            android:layout_width="wrap_content"-->
+<!--            android:layout_height="wrap_content"-->
+<!--            android:text="Now Longitude : "-->
+<!--            app:layout_constraintTop_toBottomOf="@+id/tvNowLatitude"-->
+<!--            android:textSize="20dp"-->
+<!--            />-->
+</androidx.constraintlayout.widget.ConstraintLayout>
