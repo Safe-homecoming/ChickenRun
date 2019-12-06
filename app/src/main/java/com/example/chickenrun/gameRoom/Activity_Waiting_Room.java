@@ -40,6 +40,7 @@ import static com.example.chickenrun.Lobby.Activity_Lobby.GET_MY_JOIN_INDEX;
 import static com.example.chickenrun.Lobby.Activity_Lobby.GET_MY_NAME;
 import static com.example.chickenrun.Lobby.Activity_Lobby.GET_ROOM_INDEX;
 import static com.example.chickenrun.Lobby.Activity_Lobby.GET_ROOM_NAME;
+import static com.example.chickenrun.Lobby.Activity_Lobby.GET_RUN_DISTANCE;
 import static com.example.chickenrun.Lobby.Activity_Lobby.HANDLER_DELETE;
 
 public class Activity_Waiting_Room extends AppCompatActivity
@@ -90,7 +91,7 @@ public class Activity_Waiting_Room extends AppCompatActivity
 
         // 방 제목 세팅
         TextView room_name = findViewById(R.id.room_name);
-        room_name.setText(GET_ROOM_NAME);
+        room_name.setText(GET_ROOM_NAME + " (" + GET_RUN_DISTANCE + "m)");
 
         // todo: 소켓 io 통신 설정
         setSocketReceive();
@@ -403,7 +404,6 @@ public class Activity_Waiting_Room extends AppCompatActivity
                 if (GET_IS_HOST)
                 {
                     // 참가자가 한 명일 경우
-/*
                     if (itemParticipant.size() == 1)
                     {
                         Toast.makeText(mContext, "아직 준비되지 않았습니다", Toast.LENGTH_SHORT).show();
@@ -439,7 +439,6 @@ public class Activity_Waiting_Room extends AppCompatActivity
                             return;
                         }
                     }
-*/
 
 
                     // 게임 시작 액티비티로 이동

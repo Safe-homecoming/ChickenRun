@@ -14,6 +14,9 @@ public class item_lobby_list
     @SerializedName("user_count")
     String roomCount;
 
+    @SerializedName("distance")
+    String distance;
+
     public String getRoomIndex()
     {
         return roomIndex;
@@ -42,5 +45,15 @@ public class item_lobby_list
     public void setRoomCount(String roomCount)
     {
         this.roomCount = roomCount;
+    }
+
+    public String getDistance()
+    {
+        return distance;
+    }
+
+    public void setDistance(String distance)
+    {
+        this.distance = distance;
     }
 }
