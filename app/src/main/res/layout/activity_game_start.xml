@@ -23,6 +23,11 @@
                 app:lottie_fileName="funky-chicken.json"
                 app:lottie_loop="true"
                 android:visibility="invisible"/>
+            <ImageView
+                android:id="@+id/minione"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                />
             <TextView
                 android:id="@+id/countnum"
                 android:layout_width="match_parent"
@@ -30,11 +35,6 @@
                 android:textSize="200sp"
                 android:gravity="center_vertical|center_horizontal"
                 android:fontFamily="@font/righteous_regular" />
-            <ImageView
-                android:id="@+id/minione"
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                />
         </FrameLayout>
 
     <LinearLayout

@@ -38,6 +38,7 @@ import io.socket.emitter.Emitter;
 import static com.example.chickenrun.GameStart.LIST_LANK;
 import static com.example.chickenrun.Lobby.Activity_Lobby.GET_MY_NAME;
 import static com.example.chickenrun.Lobby.Activity_Lobby.GET_ROOM_INDEX;
+import static com.example.chickenrun.gameRoom.Activity_Waiting_Room.GET_JOIN_USER_COUNT;
 
 
 public class GameResult extends AppCompatActivity
@@ -141,6 +142,8 @@ public class GameResult extends AppCompatActivity
              }
          }*/
 
+        List_retierUser = new ArrayList<>();
+
         if (LIST_LANK == null)
         {
             Log.e(TAG, "setSocket: 결승 지점에 도착했습니다.");
@@ -208,7 +211,9 @@ public class GameResult extends AppCompatActivity
                             {
                                 Log.e(TAG, "getSocketMessage: lank isEmpty");
                                 lank = i + 1 + "위: " + LIST_LANK.get(i).getUserName() + " / " + LIST_LANK.get(i).getRunTime() + "\n";
-                            } else
+                            }
+
+                            else
                             {
                                 Log.e(TAG, "getSocketMessage: add lank");
                                 lank = lank + ((int) i + 1) + "위: " + LIST_LANK.get(i).getUserName() + " / " + LIST_LANK.get(i).getRunTime() + "\n";
@@ -259,27 +264,22 @@ public class GameResult extends AppCompatActivity
                         // 순위표에 리타이어 참가자 이름, 기록 저장하기
                         List_retierUser.add(new retireUserList(getGoalRecord[0], Double.parseDouble(getGoalRecord[1])));
 
-                        // 정렬
-                        for (int i = 0; i < List_retierUser.size(); i++)
-                        {
-                            List_retierUser.sort(new Comparator<retireUserList>()
-                            {
-                                @Override
-                                public int compare(retireUserList o1, retireUserList o2)
-                                {
-                                    // TODO Auto-generated method stub
-                                    Double age0 = retierUserList.getRetierUSerDistance();
-                                    Double age1 = retierUserList.getRetierUSerDistance();
-                                    if (age0 == age1)
-                                        return 0;
-                                    else if (age1 > age0)
-                                        return 1;
-                                    else
-                                        return -1;
-                                }
-                            });
-                        }
+                        Log.e(TAG, "getSocketMessage: GET_JOIN_USER_COUNT.size: " + GET_JOIN_USER_COUNT);
+                        Log.e(TAG, "getSocketMessage: List_retierUser.size: " + List_retierUser.size());
 
+                        // 리타이어 인원이 모두 모이면 거리순 정렬 후 순위표에 반영한다.
+                        if (List_retierUser.size() == GET_JOIN_USER_COUNT)
+                        {
+                            Log.e(TAG, "getSocketMessage: 리타이어 인원이 모두 모였습니다. 정렬을 시작합니다." );
+
+
+                            Log.e(TAG, "getSocketMessage: 정렬 결과 확인하기" );
+                            Log.e(TAG, "getSocketMessage: List_retierUser.size: " + List_retierUser.size() );
+                            for (int i = 0; i < List_retierUser.size(); i++)
+                            {
+                                Log.e(TAG, "getSocketMessage: distance: " + List_retierUser.get(i).getRetierUSerDistance() + " / Name: " + List_retierUser.get(i).getRetierUSerName());
+                            }
+                        }
 
                         // 거리순 정렬하기
 
@@ -314,9 +314,6 @@ public class GameResult extends AppCompatActivity
                         tempTask(); // 타이머 시작
 
                         tv_game_result.setText(lank);
-
-                        // 1등 유저에게 전달할 메시지
-//                        attemptSend(GET_MY_NAME, GET_ROOM_INDEX, "GameProgressAddRetireSignal", GET_MY_NAME + " / " + "내가 이동한 거리");
                     }
                 }
             }

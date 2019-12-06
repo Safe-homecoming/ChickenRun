@@ -13,6 +13,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Color;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
@@ -45,6 +46,8 @@ import static android.speech.tts.TextToSpeech.ERROR;
 import static com.example.chickenrun.Lobby.Activity_Lobby.GET_IS_HOST;
 import static com.example.chickenrun.Lobby.Activity_Lobby.GET_MY_NAME;
 import static com.example.chickenrun.Lobby.Activity_Lobby.GET_ROOM_INDEX;
+import static com.example.chickenrun.Lobby.Activity_Lobby.GET_RUN_DISTANCE;
+import static com.example.chickenrun.gameRoom.Activity_Waiting_Room.GET_JOIN_USER_COUNT;
 
 /*
  * 사용자들이 게임을 시작하기 위한 화면, 시작후 화면
@@ -53,6 +56,7 @@ public class GameStart extends AppCompatActivity
 {
 
     public static float GET_CURRENT_DISTANCE;
+
     private String TAG = "GameStart";
     Socket socket;
 
@@ -144,7 +148,7 @@ public class GameStart extends AppCompatActivity
         //
         catch (Exception e)
         {
-            Log.e(TAG, "onCreate: e: " + e.getMessage() );
+            Log.e(TAG, "onCreate: e: " + e.getMessage());
             e.printStackTrace();
         }
 
@@ -193,53 +197,53 @@ public class GameStart extends AppCompatActivity
                             Log.e(TAG, "getSocketMessage: message: " + args[0].toString());
                         } else
                         {*/
-                            ioMessage = args[0].toString().split(", ");
+                        ioMessage = args[0].toString().split(", ");
 
-                            Log.e(TAG, "run: self:: 메시지 보낸 유저  : " + ioMessage[0]);
-                            Log.e(TAG, "run: self:: 방 번호           : " + ioMessage[1]);
-                            Log.e(TAG, "run: self:: 타입              : " + ioMessage[2]);
-                            Log.e(TAG, "run: self:: 내용              : " + ioMessage[3]);
+                        Log.e(TAG, "run: self:: 메시지 보낸 유저  : " + ioMessage[0]);
+                        Log.e(TAG, "run: self:: 방 번호           : " + ioMessage[1]);
+                        Log.e(TAG, "run: self:: 타입              : " + ioMessage[2]);
+                        Log.e(TAG, "run: self:: 내용              : " + ioMessage[3]);
 
-                            if (ioMessage[2].equals("GameProgressSignal"))
+                        if (ioMessage[2].equals("GameProgressSignal"))
+                        {
+                            if (ioMessage[3].equals("countStart"))
                             {
-                                if (ioMessage[3].equals("countStart"))
+                                Log.e(TAG, "run: self: 게임 시작 카운트다운 시작");
+
+                                // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+                                // 타이머 시작!
+                                cnt = 5;
+                                isThread = true;
+                                thread = new Thread()
                                 {
-                                    Log.e(TAG, "run: self: 게임 시작 카운트다운 시작");
-
-                                    // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-                                    // 타이머 시작!
-                                    cnt =5;
-                                    isThread = true;
-                                    thread = new Thread()
+                                    public void run()
                                     {
-                                        public void run()
-                                        {
-                                            // while (cnt <= 4)
-                                            for (int i = cnt; i >= -2; i--)
-                                            { //
-                                                Log.i("cntcntcntcnt", "      " + i);
-                                                // 메시지 얻어오기
-                                                Message msg = handler.obtainMessage();
-                                                // 메시지 cnt 값 숫자 카운트 값 넣어줌
-                                                msg.what =i;
-                                                // 메시지 정보 설정 arg1 시작한 초 수 구분하기
-                                                msg.arg1 = 5;
+                                        // while (cnt <= 4)
+                                        for (int i = cnt; i >= -2; i--)
+                                        { //
+                                            Log.i("cntcntcntcnt", "      " + i);
+                                            // 메시지 얻어오기
+                                            Message msg = handler.obtainMessage();
+                                            // 메시지 cnt 값 숫자 카운트 값 넣어줌
+                                            msg.what = i;
+                                            // 메시지 정보 설정 arg1 시작한 초 수 구분하기
+                                            msg.arg1 = 5;
 
-                                                try
-                                                {
-                                                    sleep(1000);
-                                                } catch (InterruptedException e)
-                                                {
-                                                    e.printStackTrace();
-                                                    thread.interrupt();
-                                                }
-                                                handler.sendMessage(msg);
+                                            try
+                                            {
+                                                sleep(1000);
+                                            } catch (InterruptedException e)
+                                            {
+                                                e.printStackTrace();
+                                                thread.interrupt();
                                             }
+                                            handler.sendMessage(msg);
                                         }
-                                    };
-                                    thread.start();
-                                }
+                                    }
+                                };
+                                thread.start();
                             }
+                        }
 
 //                        }
 //                        // todo: 돌려받은 메시지 가공해서 사용하기 (성훈)
@@ -258,7 +262,7 @@ public class GameStart extends AppCompatActivity
         timersview = (TextView) findViewById(R.id.timers);
         distenceview = (TextView) findViewById(R.id.distence);
 
-        mini = (ImageView)findViewById(R.id.minione);
+        mini = (ImageView) findViewById(R.id.minione);
         // TODO: (성훈) ========================================================
 
         if (GET_IS_HOST)
@@ -274,7 +278,6 @@ public class GameStart extends AppCompatActivity
         }
 
         //////
-
 
         // todo: (테스트) 1등 참가자가 다른 참가자들에게 알림 전달하기
         timersview.setOnClickListener(new View.OnClickListener()
@@ -297,8 +300,8 @@ public class GameStart extends AppCompatActivity
 
                 for (int i = 0; i < LIST_LANK.size(); i++)
                 {
-                    Log.e(TAG, "onClick: UserName   : " + i + "등: "+ LIST_LANK.get(i).getUserName() );
-                    Log.e(TAG, "onClick: RunTime    : 기록: " + LIST_LANK.get(i).getRunTime() );
+                    Log.e(TAG, "onClick: UserName   : " + i + "등: " + LIST_LANK.get(i).getUserName());
+                    Log.e(TAG, "onClick: RunTime    : 기록: " + LIST_LANK.get(i).getRunTime());
                 }
 
                 // todo: 게임 결과 화면으로 이동
@@ -312,6 +315,7 @@ public class GameStart extends AppCompatActivity
             @Override
             public void onClick(View v)
             {
+
                 // 방장에게 도착 알림 전송
                 attemptSend(GET_MY_NAME, GET_ROOM_INDEX, "GameProgressGoalSignal", GET_MY_NAME + " / " + lastTime);
 
@@ -325,6 +329,9 @@ public class GameStart extends AppCompatActivity
     // todo: 게임 결과 화면으로 이동
     private void startActivity_GameResult()
     {
+        // 게임 끝난 인원은 총 인원수에서 빠지기 (리타이어 인원 수 간추릴 때 사용)
+        GET_JOIN_USER_COUNT--;
+
         // 소켓 연결 끊고 결과 화면으로 이동
         Intent intent = new Intent(mContext, GameResult.class);
         socket.disconnect();
@@ -388,6 +395,19 @@ public class GameStart extends AppCompatActivity
                         attemptSend(GET_MY_NAME, GET_ROOM_INDEX, "GameProgressSignal", "countStart");
                     }
                 }
+
+                // 리타이어 유저는 3초 후 결과 화면으로 이동한다
+                else if (timerType.equals("retierUser"))
+                {
+                    // 2초 후 게임 시작 알림 전달
+                    if (Integer.parseInt(text) == 2)
+                    {
+                        timer.cancel(); // 타이머 중단
+
+                        // todo: 게임 결과 화면으로 이동
+                        startActivity_GameResult();
+                    }
+                }
             }
         });
     }
@@ -418,21 +438,21 @@ public class GameStart extends AppCompatActivity
 
                     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
                     // 타이머 시작!
-                    cnt =5;
+                    cnt = 5;
                     isThread = true;
                     thread = new Thread()
                     {
                         public void run()
                         {
 
-                           // while (cnt <= 4)
-                            for(int i = cnt; i >= -2; i--)
+                            // while (cnt <= 4)
+                            for (int i = cnt; i >= -2; i--)
                             { //
                                 Log.i("cntcntcntcnt방장", "      " + i);
                                 // 메시지 얻어오기
                                 Message msg = handler.obtainMessage();
                                 // 메시지 cnt 값 숫자 카운트 값 넣어줌
-                                msg.what =i;
+                                msg.what = i;
                                 // 메시지 정보 설정 arg1 시작한 초 수 구분하기
                                 msg.arg1 = 5;
 
@@ -456,10 +476,16 @@ public class GameStart extends AppCompatActivity
                 {
                     // 1등 참가자를 제외한 모든 참가자들에게 알림 전달
                     Log.e(TAG, "getSocketMessage: 1등 참가자가 결정 되었습니다. 10초 카운트 다운을 시작합니다.");
+
+                    // 순위표를 채워서 1등이 아닌 유저가 순위표에 접근하지 못 하게 막기.
+                    LIST_LANK = new ArrayList<>();
+                    item_lank_lists = new item_lank_list("somePlayerWin", "none");
+                    LIST_LANK.add(item_lank_lists);
+
                     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
                     //10초 카운트
                     // 타이머 시작!
-                    cnt =10;
+                    cnt = 10;
                     isThread = true;
                     thread = new Thread()
                     {
@@ -474,7 +500,7 @@ public class GameStart extends AppCompatActivity
                                 // 메시지 얻어오기
                                 Message msg = handler.obtainMessage();
                                 // 메시지 cnt 값 숫자 카운트 값 넣어줌
-                                msg.what =i;
+                                msg.what = i;
                                 // 메시지 정보 설정 arg1 시작한 초 수 구분하기
                                 msg.arg1 = 10;
 
@@ -495,11 +521,6 @@ public class GameStart extends AppCompatActivity
 
 
                     //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
-
-
-
-
-
 
 
                     // 카운트다운 시작
@@ -531,23 +552,25 @@ public class GameStart extends AppCompatActivity
         @Override
         public void handleMessage(Message msg)
         {
-             super.handleMessage(msg);
+            super.handleMessage(msg);
 
-            if (msg.what != 0 && msg.what != -1&& msg.what != -2) //공통
+            if (msg.what != 0 && msg.what != -1 && msg.what != -2) //공통
             {
+                if (msg.arg1 == 10) // 10초용
+                {
+                    countview.setTextColor(Color.parseColor("#88FFFFFF"));
+                }
                 countview.setVisibility(View.VISIBLE);
                 countview.setText("" + msg.what);
                 tts.setPitch(1f);         // 음성 톤을 0.5배 내려준다.
                 tts.setSpeechRate(1.0f);    // 읽는 속도는 기본 설정
                 tts.speak(countview.getText().toString(), TextToSpeech.QUEUE_FLUSH, null);
-               Log.i("cntcntcntcnt4444","      "+msg.what);
+                Log.i("cntcntcntcnt4444", "      " + msg.what);
 
-            }
-            else if(msg.what == 0 && msg.arg1 == 5)
+            } else if (msg.what == 0 && msg.arg1 == 5)
             { // 5초 카운트용
                 Glide.with(GameStart.this).load(R.raw.start).into(mini);
-            }
-            else if(msg.what == -1 && msg.arg1 == 5)
+            } else if (msg.what == -1 && msg.arg1 == 5)
             { // 5초 카운트용
                 mini.setVisibility(View.INVISIBLE);
                 countview.setTextSize(TypedValue.COMPLEX_UNIT_SP, 100);
@@ -555,38 +578,46 @@ public class GameStart extends AppCompatActivity
                 tts.setPitch(1f);         // 음성 톤을 0.5배 내려준다.
                 tts.setSpeechRate(1.0f);    // 읽는 속도는 기본 설정
                 tts.speak(countview.getText().toString(), TextToSpeech.QUEUE_FLUSH, null);
-                Log.i("cntcntcntcnt5555","      "+msg.what);
-            }
-            else if (msg.what == -2 && msg.arg1 == 5) // 5초 카운트용
+                Log.i("cntcntcntcnt5555", "      " + msg.what);
+            } else if (msg.what == -2 && msg.arg1 == 5) // 5초 카운트용
             {
-                Log.i("cntcntcntcnt6","      "+msg.what);
+                Log.i("cntcntcntcnt6", "      " + msg.what);
                 countview.setVisibility(View.INVISIBLE);
                 mini.setVisibility(View.VISIBLE);
                 Glide.with(GameStart.this).load(R.raw.letsrun).into(mini);
-               // animationView.playAnimation();//애니메이션 start
+                // animationView.playAnimation();//애니메이션 start
 
                 //타임 쓰레드
                 //스탑워치 형식으로 사용자의 게임시간을 측정한다.
-                handler4 = new Handler() ;
+                handler4 = new Handler();
                 StartTime = SystemClock.uptimeMillis();// 시스템 시간을 가져온다.
                 handler4.postDelayed(runnable, 0);
                 //gps 쓰레드
                 //위도 경도를 실시간으로 가져온다
                 gpsThread = new Thread(new gpsThread());
                 gpsThread.start();
-                cnt =0;
+                cnt = 0;
                 thread.interrupt();
-            }
-            else if (msg.what == 0 && msg.arg1 == 10) // 10초 카운트용
+            } else if (msg.what == 0 && msg.arg1 == 10) // 10초 카운트용
             {
+                countview.setTextColor(Color.parseColor("#88FFFFFF"));
                 countview.setVisibility(View.VISIBLE);
                 countview.setTextSize(TypedValue.COMPLEX_UNIT_SP, 100);
                 countview.setText("Retire");
                 tts.setPitch(1f);         // 음성 톤을 0.5배 내려준다.
-                tts.setSpeechRate(1.0f);    // 읽는 속도는 기본 설정
+                tts.setSpeechRate(0.5f);    // 읽는 속도는 기본 설정
                 tts.speak(countview.getText().toString(), TextToSpeech.QUEUE_FLUSH, null);
-                Log.i("cntcntcntcnt5555","      "+msg.what);
-                cnt =0;
+                Log.i("cntcntcntcnt5555", "      " + msg.what);
+                cnt = 0;
+
+                // 리타이어 유저가 1등 유저에게 전달할 메시지
+                attemptSend(GET_MY_NAME, GET_ROOM_INDEX, "GameProgressAddRetireSignal", GET_MY_NAME + " / " + GET_CURRENT_DISTANCE);
+
+                // 리타이어 유저는 3초 후 결과 화면으로 이동
+                timerType = "retierUser";
+                elapsed = 0; // 시작할 시간 설정 (0초부터)
+                TIMEOUT = 4000; // 타이머 진행할 시간 3초로 설정
+                tempTask(); // 타이머 시작
             }
         }
     };
@@ -682,15 +713,15 @@ public class GameStart extends AppCompatActivity
                     //Log.i("nowlocation testestset","      "+(float)nowLocation.getLatitude()+"       "+(float)nowLocation.getLongitude());
 
                     //  거리 계산
-                   // if (nowLocation.getAltitude() == 0.0 && nowLocation.getLatitude() != 0.0)
-                   // {
-                        i++;
-                        editor.putFloat("gpslatitude" + i, (float) nowLocation.getLatitude()); // key,//경도
-                        editor.putFloat("gpslongitude" + i, (float) nowLocation.getLongitude()); // key,//위도
-                        editor.commit();
-                        distance = crntLocation.distanceTo(nowLocation);///1000; //in km
-                        Log.i("Test_Log", "   출발거리와 현재 위치 간 거리" + distance);
-                   // }
+                    // if (nowLocation.getAltitude() == 0.0 && nowLocation.getLatitude() != 0.0)
+                    // {
+                    i++;
+                    editor.putFloat("gpslatitude" + i, (float) nowLocation.getLatitude()); // key,//경도
+                    editor.putFloat("gpslongitude" + i, (float) nowLocation.getLongitude()); // key,//위도
+                    editor.commit();
+                    distance = crntLocation.distanceTo(nowLocation);///1000; //in km
+                    Log.i("Test_Log", "   출발거리와 현재 위치 간 거리" + distance);
+                    // }
 
 
                     // 거리( 더블형 ) 스트링으로 보냄
@@ -699,7 +730,46 @@ public class GameStart extends AppCompatActivity
 
                     // 거리 받아오기
                     GET_CURRENT_DISTANCE = distance;
-                    Log.e(TAG, "run: GET_CURRENT_DISTANCE: " + GET_CURRENT_DISTANCE );
+
+                    Log.e(TAG, "run: 결승 지점         : " + GET_RUN_DISTANCE );
+                    Log.e(TAG, "run: 현재 이동한 거리  : " + GET_CURRENT_DISTANCE );
+
+                    // todo: 결승 지점에 도착하기
+                    if (Integer.parseInt(GET_RUN_DISTANCE) <= (int) GET_CURRENT_DISTANCE)
+                    {
+                        Log.e(TAG, "run: 결승 지점에 도착했습니다!");
+
+                        /** todo: 1등 한 유저가 나머지 유저들에게 카운트다운 신호 전달하는 방법
+                         * 1. 1등한 유저가 자신을 순위표 arrayList에 담기
+                         * 2. 자신을 제외한 참가자들에게 카운트다운 시작 신호 전달하기
+                         */
+
+                        if (LIST_LANK == null)
+                        {
+                            attemptSend(GET_MY_NAME, GET_ROOM_INDEX, "GameProgressSignal", "endCountStart");
+
+                            // 1등 한 유저만 순위표에 자신의 이름, 기록 저장하고 GameResult 화면으로 이동하기
+                            LIST_LANK = new ArrayList<>();
+                            item_lank_lists = new item_lank_list(GET_MY_NAME, lastTime);
+                            LIST_LANK.add(item_lank_lists);
+
+                            for (int ii = 0; ii < LIST_LANK.size(); ii++)
+                            {
+                                Log.e(TAG, "onClick: UserName   : " + ii + "등: " + LIST_LANK.get(i).getUserName());
+                                Log.e(TAG, "onClick: RunTime    : 기록: " + LIST_LANK.get(i).getRunTime());
+                            }
+
+                            // todo: 게임 결과 화면으로 이동
+                            startActivity_GameResult();
+                        }
+
+                        // 1등 이외의 유저는 방장에게 도착 알림 전송
+                        else
+                        {
+                            // 방장에게 도착 알림 전송
+                            attemptSend(GET_MY_NAME, GET_ROOM_INDEX, "GameProgressGoalSignal", GET_MY_NAME + " / " + lastTime);
+                        }
+                    }
 
 
                     handler3.sendMessage(msg);

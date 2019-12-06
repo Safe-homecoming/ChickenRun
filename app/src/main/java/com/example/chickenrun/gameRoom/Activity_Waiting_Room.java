@@ -274,6 +274,9 @@ public class Activity_Waiting_Room extends AppCompatActivity
             {
                 if (ioMessage[3].equals("Start"))
                 {
+                    // 게임 진행할 총 인원 수 구하기. (리타이어 인원 수 간추릴 때 사용)
+                    GET_JOIN_USER_COUNT = itemParticipant.size();
+
                     socket.disconnect();
                     Intent intent = new Intent(mContext, GameStart.class);
                     startActivity(intent);
@@ -394,6 +397,8 @@ public class Activity_Waiting_Room extends AppCompatActivity
 
     // todo: 레디 버튼 제어
     int readyCount;
+
+    public static int GET_JOIN_USER_COUNT;
     private void ReadyTask()
     {
         button_waiting_ready.setOnClickListener(new View.OnClickListener()
@@ -440,6 +445,9 @@ public class Activity_Waiting_Room extends AppCompatActivity
                         }
                     }
 
+
+                    // 게임 진행할 총 인원 수 구하기. (리타이어 인원 수 간추릴 때 사용)
+                    GET_JOIN_USER_COUNT = itemParticipant.size();
 
                     // 게임 시작 액티비티로 이동
                     Intent intent = new Intent(mContext, GameStart.class);
