@@ -38,7 +38,9 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.example.chickenrun.gameRoom.item_lank_list;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Timer;
@@ -96,11 +98,11 @@ public class GameStart extends AppCompatActivity
     LocationManager lm;
 
     // 타임 쓰레드 관련
-    long MillisecondTime, StartTime, TimeBuff, UpdateTime = 0L ;
+    long MillisecondTime, StartTime, TimeBuff, UpdateTime = 0L;
 
     Handler handler4;
 
-    int Seconds, Minutes, MilliSeconds ;
+    int Seconds, Minutes, MilliSeconds;
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -134,26 +136,6 @@ public class GameStart extends AppCompatActivity
                 }
             }
         });
-
-
-/*        isThread = true;
-        thread = new Thread() {
-            public void run() {
-
-                while (cnt <= 4) { //
-                    Log.i("cntcntcntcnt", "      " + cnt);
-                    try {
-                        sleep(1000);
-                    } catch (InterruptedException e) {
-                        e.printStackTrace();
-                        thread.interrupt();
-                    }
-                    handler.sendEmptyMessage(0);
-//                    Log.i("cntcntcntcnt222222222","      "+cnt);
-                }
-            }
-        };
-        thread.start();*/
 
         //현재위치 가져오기
         curLocation();
@@ -239,9 +221,53 @@ public class GameStart extends AppCompatActivity
             TIMEOUT = 3000; // 타이머 종료할 시간 2초로 설정
             tempTask(); // 타이머 시작
         }
+
+        //////
+
+
+        // todo: (테스트) 1등 참가자가 다른 참가자들에게 알림 전달하기
+        timersview.setOnClickListener(new View.OnClickListener()
+        {
+            @Override
+            public void onClick(View v)
+            {
+
+                /** todo: 1등 한 유저가 나머지 유저들에게 카운트다운 신호 전달하는 방법
+                 * 1. 1등한 유저가 자신을 순위표 arrayList에 담기
+                 * 2. 자신을 제외한 참가자들에게 카운트다운 시작 신호 전달하기
+                 */
+                
+                attemptSend(GET_MY_NAME, GET_ROOM_INDEX, "GameProgressSignal", "endCountStart");
+
+                // 순위표에 자신의 이름, 기록 저장하기
+                itemLankLists = new ArrayList<>();
+                item_lank_lists = new item_lank_list(GET_MY_NAME, lastTime);
+
+                itemLankLists.add(item_lank_lists);
+
+                for (int i = 0; i < itemLankLists.size(); i++)
+                {
+                    Log.e(TAG, "onClick: UserName   : " + itemLankLists.get(i).getUserName() );
+                    Log.e(TAG, "onClick: RunTime    : " + itemLankLists.get(i).getRunTime() );
+                }
+
+/*                for (int i = 0; i < itemLankLists.size(); i++)
+                {
+                    Log.e(TAG, "getSocketMessage: itemLankLists: " + itemLankLists.get(i).getUserName());
+                    if (TextUtils.isEmpty(lankList))
+                    {
+                        lankList = itemLankLists.get(i).getUserName() + "_" + itemLankLists.get(i).getRunTime();
+                    } else
+                    {
+                        lankList = lankList + " / " + itemLankLists.get(i).getUserName() + "_" + itemLankLists.get(i).getRunTime();
+                    }
+                }*/
+            }
+        });
+
+        //////
     }
 
-    // todo: 수신받은 메시지 가공해서 사용하기
     private Context mContext;
     String ioMessage[];
     String timerType;
@@ -250,6 +276,9 @@ public class GameStart extends AppCompatActivity
     final static long INTERVAL = 1000; // 1초 에 1씩 증가
     static long TIMEOUT; // 종료 할 시간 설정 (10000 = 10초)
     private Timer timer;
+
+    private List<item_lank_list> itemLankLists;
+    private item_lank_list item_lank_lists;
 
     // todo: 타이머 스레드 메소드
     public void tempTask()
@@ -299,6 +328,9 @@ public class GameStart extends AppCompatActivity
         });
     }
 
+    String lankList;
+
+    // todo: 수신받은 메시지 가공해서 사용하기
     private void getSocketMessage(String message)
     {
         if (message.equals("hello, world"))
@@ -312,12 +344,6 @@ public class GameStart extends AppCompatActivity
             Log.e(TAG, "getSocketMessage: 방 번호           : " + ioMessage[1]);
             Log.e(TAG, "getSocketMessage: 타입              : " + ioMessage[2]);
             Log.e(TAG, "getSocketMessage: 내용              : " + ioMessage[3]);
-
-            /** todo: 1등 한 유저가 나머지 유저들에게 카운트다운 신호 전달하는 방법
-             * 1. 1등한 유저가 자신을 순위표 arrayList에 담기
-             * 2. 자신을 제외한 참가자들에게 카운트다운 시작 신호 전달하기
-             */
-//            attemptSend(GET_MY_NAME, GET_ROOM_INDEX, "GameProgressSignal", "endCountStart");
 
             if (ioMessage[2].equals("GameProgressSignal"))
             {
@@ -353,11 +379,28 @@ public class GameStart extends AppCompatActivity
                     thread.start();
                 }
 
-                // todo: 1등한 유저에게 카운트다운 신호 전달받기
+                // itemLankLists item_lank_list
                 if (ioMessage[3].equals("endCountStart"))
                 {
-//                    attemptSend(GET_MY_NAME, GET_ROOM_INDEX, "GameProgressSignal", "endCountStart");
-                    Log.e(TAG, "getSocketMessage: 1등 참가자가 결정 되었습니다. 10초 카운트 다운을 시작합니다.");
+                    // 1등 참가자를 제외한 사람들에게 알림 전달
+                    for (int i = 0; i < itemLankLists.size(); i++)
+                    {
+                        if (itemLankLists == null)
+                        {
+                            Log.e(TAG, "getSocketMessage: 1등 참가자는 알림을 받지 않습니다." );
+                        }
+                        else
+                        {
+                            if (itemLankLists.get(i).getUserName().equals(GET_MY_NAME))
+                            {
+                                Log.e(TAG, "getSocketMessage: 1등 참가자는 알림을 받지 않습니다." );
+                            }
+                            else
+                            {
+                                Log.e(TAG, "getSocketMessage: 1등 참가자가 결정 되었습니다. 10초 카운트 다운을 시작합니다.");
+                            }
+                        }
+                    }
                 }
             }
 
@@ -415,10 +458,10 @@ public class GameStart extends AppCompatActivity
                 animationView.playAnimation();//애니메이션 start
 
 
-              //  chronometer.start();
+                //  chronometer.start();
 //                timeThread = new Thread(new timeThread());
 //                timeThread.start();
-                handler4 = new Handler() ;
+                handler4 = new Handler();
                 StartTime = SystemClock.uptimeMillis();
                 handler4.postDelayed(runnable, 0);
                 gpsThread = new Thread(new gpsThread());
@@ -429,9 +472,13 @@ public class GameStart extends AppCompatActivity
         }
     };
 
-    public Runnable runnable = new Runnable() {
+    String lastTime;
 
-        public void run() {
+    public Runnable runnable = new Runnable()
+    {
+
+        public void run()
+        {
 
             MillisecondTime = SystemClock.uptimeMillis() - StartTime;
 
@@ -449,6 +496,11 @@ public class GameStart extends AppCompatActivity
             timersview.setText("" + String.format("%02d", Minutes) + ":"
                     + String.format("%02d", Seconds) + ":"
                     + String.format("%03d", MilliSeconds));
+
+            // todo: 성훈 추가
+            lastTime = "" + String.format("%02d", Minutes) + ":"
+                    + String.format("%02d", Seconds) + ":"
+                    + String.format("%03d", MilliSeconds);
 
             handler.postDelayed(this, 0);
         }
@@ -623,8 +675,6 @@ public class GameStart extends AppCompatActivity
         }
     };
 
-
-   
 
     @Override
     protected void onDestroy()
