@@ -217,6 +217,7 @@ public class GameResult extends AppCompatActivity
 
                          // 순위표 정리 후 참가자들에게 순위표 전달 해주기
                          timerType = "responseLankList";
+                         elapsed = 0; // 시작할 시간 설정 (0초부터)
                          TIMEOUT = 3000; // 타이머 진행할 시간 3초로 설정
                          tempTask(); // 타이머 시작
 
