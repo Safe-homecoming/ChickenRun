@@ -51,6 +51,7 @@ import static com.example.chickenrun.Lobby.Activity_Lobby.GET_ROOM_INDEX;
 public class GameStart extends AppCompatActivity
 {
 
+    public static float GET_CURRENT_DISTANCE;
     private String TAG = "GameStart";
     Socket socket;
 
@@ -90,6 +91,8 @@ public class GameStart extends AppCompatActivity
     Handler handler4;
 
     int Seconds, Minutes, MilliSeconds;
+
+    // GET_CURRENT_DISTANCE
 
     @Override
     protected void onCreate(Bundle savedInstanceState)
@@ -135,8 +138,12 @@ public class GameStart extends AppCompatActivity
         {
             //socket은 커넥션이 성공했을 때 커넥션에 대한 정보를 담고 있는 변수
             socket = IO.socket("http://ec2-13-125-121-5.ap-northeast-2.compute.amazonaws.com:3000");
-        } catch (Exception e)
+        }
+
+        //
+        catch (Exception e)
         {
+            Log.e(TAG, "onCreate: e: " + e.getMessage() );
             e.printStackTrace();
         }
 
@@ -607,6 +614,10 @@ public class GameStart extends AppCompatActivity
                     // 거리( 더블형 ) 스트링으로 보냄
                     String information = new String("" + distance);
                     msg.obj = information;
+
+                    // 거리 받아오기
+                    GET_CURRENT_DISTANCE = distance;
+                    Log.e(TAG, "run: GET_CURRENT_DISTANCE: " + GET_CURRENT_DISTANCE );
 
 
                     handler3.sendMessage(msg);

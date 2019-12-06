@@ -58,7 +58,7 @@ public class Activity_Lobby extends AppCompatActivity
     private Context mContext;
     TextView button_create_room;
 
-    public static String GET_ROOM_INDEX, GET_MY_JOIN_INDEX, GET_ROOM_NAME, GET_MY_NAME;
+    public static String GET_ROOM_INDEX, GET_MY_JOIN_INDEX, GET_ROOM_NAME, GET_MY_NAME, GET_RUN_DISTANCE;
     public static boolean GET_IS_HOST;
     public String memId;
 
@@ -126,9 +126,9 @@ public class Activity_Lobby extends AppCompatActivity
                 TextView dialog_button_room_create = view.findViewById(R.id.dialog_button_room_create);
                 final Spinner spinner= view.findViewById(R.id.spinner2);
 
-
                 final AlertDialog dialog = builder.create();
 
+//                Log.e(TAG, "onClick: spinner: " + spinner.getSelectedItem().toString().replace("m","") );
 
                 // todo: 방 생성 시작하기
                 dialog_button_room_create.setOnClickListener(new View.OnClickListener()
@@ -142,6 +142,7 @@ public class Activity_Lobby extends AppCompatActivity
 
                         // todo: 방 생성 (mysql)
                         createRoom(GET_ROOM_NAME, spinner.getSelectedItem().toString().replace("m",""));
+                        GET_RUN_DISTANCE = spinner.getSelectedItem().toString().replace("m","");
                         Log.i("dsfsdfsdfsd  spinner","       "+spinner.getSelectedItem().toString().replace("m",""));
                         dialog.dismiss();
                     }
@@ -299,7 +300,9 @@ public class Activity_Lobby extends AppCompatActivity
             holder.room_title.setText(itemLobbyList.get(position).getRoomName());
 
             // 방 인원 수
-            holder.join_user_count.setText(itemLobbyList.get(position).roomCount + " / 4");
+            holder.join_user_count.setText(itemLobbyList.get(position).getRoomCount() + " / 4");
+
+            holder.distance.setText(itemLobbyList.get(position).getDistance() + "m");
 
             // 참가버튼 클릭
             holder.button_join.setOnClickListener(new View.OnClickListener()
@@ -311,6 +314,8 @@ public class Activity_Lobby extends AppCompatActivity
                     GET_ROOM_INDEX = itemLobbyList.get(position).roomIndex;
                     GET_ROOM_NAME = itemLobbyList.get(position).getRoomName();
                     GET_IS_HOST = false; // false = 방 구성원 / true = 방장
+                    GET_RUN_DISTANCE = itemLobbyList.get(position).getDistance();
+
                     Log.e(TAG, "onClick: " + memId + "님이 " + GET_ROOM_INDEX + "번 방에 입장합니다.");
 
                     // todo: 방 입장하기 (mysql)
@@ -332,6 +337,8 @@ public class Activity_Lobby extends AppCompatActivity
             public TextView room_title;
             public TextView join_user_count;
             public TextView button_join;
+            public TextView distance;
+
 
             public ViewHolder(@NonNull View itemView)
             {
@@ -340,6 +347,7 @@ public class Activity_Lobby extends AppCompatActivity
                 room_title = itemView.findViewById(R.id.room_title);
                 join_user_count = itemView.findViewById(R.id.join_user_count);
                 button_join = itemView.findViewById(R.id.button_join);
+                distance = itemView.findViewById(R.id.room_distance);
             }
         }
 
