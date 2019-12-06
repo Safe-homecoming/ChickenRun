@@ -32,6 +32,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.airbnb.lottie.LottieAnimationView;
+import com.bumptech.glide.Glide;
 import com.example.chickenrun.gameRoom.item_lank_list;
 
 import java.util.ArrayList;
@@ -207,15 +208,23 @@ public class GameStart extends AppCompatActivity
 
                                     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
                                     // 타이머 시작!
+                                    cnt =5;
                                     isThread = true;
                                     thread = new Thread()
                                     {
                                         public void run()
                                         {
                                             // while (cnt <= 4)
-                                            for (int i = cnt; i >= -1; i--)
+                                            for (int i = cnt; i >= -2; i--)
                                             { //
                                                 Log.i("cntcntcntcnt", "      " + i);
+                                                // 메시지 얻어오기
+                                                Message msg = handler.obtainMessage();
+                                                // 메시지 cnt 값 숫자 카운트 값 넣어줌
+                                                msg.what =i;
+                                                // 메시지 정보 설정 arg1 시작한 초 수 구분하기
+                                                msg.arg1 = 5;
+
                                                 try
                                                 {
                                                     sleep(1000);
@@ -224,7 +233,7 @@ public class GameStart extends AppCompatActivity
                                                     e.printStackTrace();
                                                     thread.interrupt();
                                                 }
-                                                handler.sendEmptyMessage(i);
+                                                handler.sendMessage(msg);
                                             }
                                         }
                                     };
@@ -249,6 +258,7 @@ public class GameStart extends AppCompatActivity
         timersview = (TextView) findViewById(R.id.timers);
         distenceview = (TextView) findViewById(R.id.distence);
 
+        mini = (ImageView)findViewById(R.id.minione);
         // TODO: (성훈) ========================================================
 
         if (GET_IS_HOST)
@@ -309,7 +319,7 @@ public class GameStart extends AppCompatActivity
                 startActivity_GameResult();
             }
         });
-    }
+    }  //onCreate
 
 
     // todo: 게임 결과 화면으로 이동
@@ -408,6 +418,7 @@ public class GameStart extends AppCompatActivity
 
                     // =-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
                     // 타이머 시작!
+                    cnt =5;
                     isThread = true;
                     thread = new Thread()
                     {
@@ -415,9 +426,16 @@ public class GameStart extends AppCompatActivity
                         {
 
                            // while (cnt <= 4)
-                            for(int i = cnt; i >= -1; i--)
+                            for(int i = cnt; i >= -2; i--)
                             { //
-                                Log.i("cntcntcntcnt", "      " + i);
+                                Log.i("cntcntcntcnt방장", "      " + i);
+                                // 메시지 얻어오기
+                                Message msg = handler.obtainMessage();
+                                // 메시지 cnt 값 숫자 카운트 값 넣어줌
+                                msg.what =i;
+                                // 메시지 정보 설정 arg1 시작한 초 수 구분하기
+                                msg.arg1 = 5;
+
                                 try
                                 {
                                     sleep(1000);
@@ -426,7 +444,7 @@ public class GameStart extends AppCompatActivity
                                     e.printStackTrace();
                                     thread.interrupt();
                                 }
-                                handler.sendEmptyMessage(i);
+                                handler.sendMessage(msg);
                             }
                         }
                     };
@@ -438,6 +456,51 @@ public class GameStart extends AppCompatActivity
                 {
                     // 1등 참가자를 제외한 모든 참가자들에게 알림 전달
                     Log.e(TAG, "getSocketMessage: 1등 참가자가 결정 되었습니다. 10초 카운트 다운을 시작합니다.");
+                    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+                    //10초 카운트
+                    // 타이머 시작!
+                    cnt =10;
+                    isThread = true;
+                    thread = new Thread()
+                    {
+                        public void run()
+                        {
+                            // while (cnt <= 4)
+                            for (int i = cnt; i >= -1; i--)
+                            { //
+                                Log.i("cntcntcntcnt 10101010", "      " + i);
+
+
+                                // 메시지 얻어오기
+                                Message msg = handler.obtainMessage();
+                                // 메시지 cnt 값 숫자 카운트 값 넣어줌
+                                msg.what =i;
+                                // 메시지 정보 설정 arg1 시작한 초 수 구분하기
+                                msg.arg1 = 10;
+
+
+                                try
+                                {
+                                    sleep(1000);
+                                } catch (InterruptedException e)
+                                {
+                                    e.printStackTrace();
+                                    thread.interrupt();
+                                }
+                                handler.sendMessage(msg);
+                            }
+                        }
+                    };
+                    thread.start();
+
+
+                    //=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-=-
+
+
+
+
+
+
 
                     // 카운트다운 시작
                 }
@@ -462,37 +525,44 @@ public class GameStart extends AppCompatActivity
 
     // todo: (성훈 끝) ========================================================
 
+    // 처음에 시작 카운트와 1등이 생기면 나오는 리타이어 카운트 핸들러
     private Handler handler = new Handler()
     {
         @Override
         public void handleMessage(Message msg)
         {
-            // super.handleMessage(msg);
+             super.handleMessage(msg);
 
-            if (msg.what != 0 && msg.what != -1) //5,4,3,2,1
+            if (msg.what != 0 && msg.what != -1&& msg.what != -2) //공통
             {
                 countview.setText("" + msg.what);
                 tts.setPitch(1f);         // 음성 톤을 0.5배 내려준다.
                 tts.setSpeechRate(1.0f);    // 읽는 속도는 기본 설정
                 tts.speak(countview.getText().toString(), TextToSpeech.QUEUE_FLUSH, null);
                Log.i("cntcntcntcnt4444","      "+msg.what);
-                animationView.setVisibility(View.INVISIBLE);
-              //  Glide.with(GameStart.this).load(R.raw.start).into(mini);
-            } else if (msg.what == 0)
-            {
+
+            }
+            else if(msg.what == 0 && msg.arg1 == 5)
+            { // 5초 카운트용
+                Glide.with(GameStart.this).load(R.raw.start).into(mini);
+            }
+            else if(msg.what == -1 && msg.arg1 == 5)
+            { // 5초 카운트용
+                mini.setVisibility(View.INVISIBLE);
                 countview.setTextSize(TypedValue.COMPLEX_UNIT_SP, 100);
                 countview.setText("START");
                 tts.setPitch(1f);         // 음성 톤을 0.5배 내려준다.
                 tts.setSpeechRate(1.0f);    // 읽는 속도는 기본 설정
                 tts.speak(countview.getText().toString(), TextToSpeech.QUEUE_FLUSH, null);
                 Log.i("cntcntcntcnt5555","      "+msg.what);
-               // totalthread();
             }
-            else if (msg.what == -1)
+            else if (msg.what == -2 && msg.arg1 == 5) // 5초 카운트용
             {
                 Log.i("cntcntcntcnt6","      "+msg.what);
                 countview.setVisibility(View.INVISIBLE);
-                animationView.playAnimation();//애니메이션 start
+                mini.setVisibility(View.VISIBLE);
+                Glide.with(GameStart.this).load(R.raw.letsrun).into(mini);
+               // animationView.playAnimation();//애니메이션 start
 
                 //타임 쓰레드
                 //스탑워치 형식으로 사용자의 게임시간을 측정한다.
@@ -503,8 +573,18 @@ public class GameStart extends AppCompatActivity
                 //위도 경도를 실시간으로 가져온다
                 gpsThread = new Thread(new gpsThread());
                 gpsThread.start();
+                cnt =0;
 
-
+            }
+            else if (msg.what == 0 && msg.arg1 == 10) // 10초 카운트용
+            {
+                countview.setTextSize(TypedValue.COMPLEX_UNIT_SP, 100);
+                countview.setText("Retire");
+                tts.setPitch(1f);         // 음성 톤을 0.5배 내려준다.
+                tts.setSpeechRate(1.0f);    // 읽는 속도는 기본 설정
+                tts.speak(countview.getText().toString(), TextToSpeech.QUEUE_FLUSH, null);
+                Log.i("cntcntcntcnt5555","      "+msg.what);
+                cnt =0;
             }
         }
     };
