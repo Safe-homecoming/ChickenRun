@@ -466,7 +466,7 @@ public class GameStart extends AppCompatActivity
                         public void run()
                         {
                             // while (cnt <= 4)
-                            for (int i = cnt; i >= -1; i--)
+                            for (int i = cnt; i >= 0; i--)
                             { //
                                 Log.i("cntcntcntcnt 10101010", "      " + i);
 
@@ -535,6 +535,7 @@ public class GameStart extends AppCompatActivity
 
             if (msg.what != 0 && msg.what != -1&& msg.what != -2) //공통
             {
+                countview.setVisibility(View.VISIBLE);
                 countview.setText("" + msg.what);
                 tts.setPitch(1f);         // 음성 톤을 0.5배 내려준다.
                 tts.setSpeechRate(1.0f);    // 읽는 속도는 기본 설정
@@ -574,10 +575,11 @@ public class GameStart extends AppCompatActivity
                 gpsThread = new Thread(new gpsThread());
                 gpsThread.start();
                 cnt =0;
-
+                thread.interrupt();
             }
             else if (msg.what == 0 && msg.arg1 == 10) // 10초 카운트용
             {
+                countview.setVisibility(View.VISIBLE);
                 countview.setTextSize(TypedValue.COMPLEX_UNIT_SP, 100);
                 countview.setText("Retire");
                 tts.setPitch(1f);         // 음성 톤을 0.5배 내려준다.
