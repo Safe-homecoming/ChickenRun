@@ -276,6 +276,7 @@ public class Activity_Waiting_Room extends AppCompatActivity
                     socket.disconnect();
                     Intent intent = new Intent(mContext, GameStart.class);
                     startActivity(intent);
+                    Toast.makeText(mContext, "곧 게임이 시작됩니다! ", Toast.LENGTH_SHORT).show();
                 }
             }
         }
@@ -443,7 +444,7 @@ public class Activity_Waiting_Room extends AppCompatActivity
 
                     // 게임 시작 액티비티로 이동
                     Intent intent = new Intent(mContext, GameStart.class);
-
+                    Toast.makeText(mContext, "곧 게임이 시작됩니다! ", Toast.LENGTH_SHORT).show();
                     // todo: 참가자들에게 게임 시작 알림 전달하기
                     attemptSend(GET_MY_NAME, GET_ROOM_INDEX, "Game", "Start");
 

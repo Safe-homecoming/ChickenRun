@@ -21,7 +21,8 @@
                 android:layout_height="500dp"
                 app:lottie_autoPlay="false"
                 app:lottie_fileName="funky-chicken.json"
-                app:lottie_loop="true" />
+                app:lottie_loop="true"
+                android:visibility="invisible"/>
             <TextView
                 android:id="@+id/countnum"
                 android:layout_width="match_parent"
