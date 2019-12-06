@@ -17,8 +17,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.EditText;
 import android.widget.ImageView;
+import android.widget.Spinner;
 import android.widget.TextView;
 
 import com.android.volley.AuthFailureError;
@@ -122,8 +124,11 @@ public class Activity_Lobby extends AppCompatActivity
                 // 시작 다이얼로그
                 final EditText dialog_edit_text_room_name = view.findViewById(R.id.dialog_edit_text_room_name);
                 TextView dialog_button_room_create = view.findViewById(R.id.dialog_button_room_create);
+                final Spinner spinner= view.findViewById(R.id.spinner2);
+
 
                 final AlertDialog dialog = builder.create();
+
 
                 // todo: 방 생성 시작하기
                 dialog_button_room_create.setOnClickListener(new View.OnClickListener()
@@ -136,7 +141,8 @@ public class Activity_Lobby extends AppCompatActivity
                         Log.e(TAG, "onClick: roomTitle: " + GET_ROOM_NAME);
 
                         // todo: 방 생성 (mysql)
-                        createRoom(GET_ROOM_NAME);
+                        createRoom(GET_ROOM_NAME, spinner.getSelectedItem().toString().replace("m",""));
+                        Log.i("dsfsdfsdfsd  spinner","       "+spinner.getSelectedItem().toString().replace("m",""));
                         dialog.dismiss();
                     }
                 });
@@ -167,7 +173,7 @@ public class Activity_Lobby extends AppCompatActivity
     String createRoomData[];
 
     // todo: 방 생성 (mysql)
-    private void createRoom(final String roomName)
+    private void createRoom(final String roomName, final String distance)
     {
         Log.e(TAG, "createRoom: 방 생성 시작");
 
@@ -212,6 +218,7 @@ public class Activity_Lobby extends AppCompatActivity
                 Map<String, String> params = new HashMap<>();
 
                 params.put("roomName", roomName);
+                params.put("distance", distance); // 볼리는 다 ... 글자로 들어가는거임?
 
                 return params;
             }
